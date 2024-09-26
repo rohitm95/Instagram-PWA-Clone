@@ -1,0 +1,21 @@
+<mat-toolbar color="primary" class="header">
+  @if (isMobile) {
+    <button
+        mat-icon-button
+        class="sidenav-toggle"
+        aria-label="icon-button with menu icon"
+        (click)="toggleSideNav()"
+    >
+        <mat-icon>menu</mat-icon>
+    </button>
+  }
+  <span>PWAGram</span>
+  <span class="spacer"></span>
+  @if (!isMobile) {
+    <button mat-button [routerLink]="['/']">Feed</button>
+    <button mat-button [routerLink]="['/help']">Help</button>
+    <button mat-raised-button color="accent" class="enable-notifications">
+        Enable Notifications
+    </button>
+  }
+</mat-toolbar>
