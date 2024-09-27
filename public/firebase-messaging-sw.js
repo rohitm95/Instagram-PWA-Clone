@@ -15,4 +15,16 @@ const app = firebase.initializeApp({
   measurementId: "G-GMS3Q333WQ",
 });
 
-firebase.messaging(app);
+const messaging = firebase.messaging();
+
+messaging.onBackgroundMessage((payload) => {
+  console.log('Received background message:', payload);
+  // Customize notification here
+  const notificationTitle = payload.notification.title;
+  const notificationOptions = {
+    body: payload.notification.body,
+    icon: '/icons/app-icon-96x96.png', // Change this to your icon URL
+  };
+
+  self.registration.showNotification(notificationTitle, notificationOptions);
+});

@@ -36,7 +36,8 @@
           "/manifest.webmanifest",
           "/firebase-messaging-sw.js",
           "/*.css",
-          "/*.js"
+          "/*.js",
+          "images/broken-image.png"
         ]
       }
     },
