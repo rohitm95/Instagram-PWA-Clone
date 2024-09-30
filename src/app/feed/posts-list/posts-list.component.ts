@@ -14,6 +14,7 @@ import { SnackbarService } from '../../shared/snackbar.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterModule } from '@angular/router';
+import { SpinnerService } from '../../shared/spinner.service';
 
 @Component({
   selector: 'app-posts-list',
@@ -36,8 +37,10 @@ export class PostsListComponent implements AfterViewInit {
   snackbarService = inject(SnackbarService);
   data: Post[] = [];
   router = inject(Router);
+  spinnerService = inject(SpinnerService)
 
   ngAfterViewInit(): void {
+    this.spinnerService.showSpinner.next(true);
     this.getAllPosts();
     // this.onImageError();
   }
@@ -56,6 +59,7 @@ export class PostsListComponent implements AfterViewInit {
           };
         });
         this.data = availablePosts;
+        this.spinnerService.showSpinner.next(false);
       },
       error: (error) => {
         this.snackbarService.showSnackbar('Error fetching posts', null, 3000);

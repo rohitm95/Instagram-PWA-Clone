@@ -18,6 +18,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DataService } from '../shared/data.service';
 import { SnackbarService } from '../shared/snackbar.service';
 import { Router, RouterModule } from '@angular/router';
+import { SpinnerService } from '../shared/spinner.service';
 
 @Component({
   selector: 'app-create-post',
@@ -48,6 +49,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
   imageData;
   selectedFile: any = null;
   imageURL;
+  spinnerService = inject(SpinnerService);
 
   ngOnInit(): void {
     if (navigator.onLine) {
@@ -131,7 +133,6 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
 
   captureImage() {
     this.context = this.canvas.nativeElement.getContext('2d');
-
     this.canvas.nativeElement.width = this.video.nativeElement.videoWidth;
     this.canvas.nativeElement.height = this.video.nativeElement.videoHeight;
     this.context.drawImage(this.video.nativeElement, 0, 0);
@@ -145,16 +146,18 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
   }
 
   onNoClick(): void {
-    this.router.navigate(['feed']);
+    this.router.navigate(['/posts']);
   }
 
   createPost() {
+    this.spinnerService.showSpinner.next(true);
     this.dataService.uploadFile(this.imageData).then((result) => {
       this.postForm.controls['image'].setValue(result);
       this.dataService.addPostToDatabase(this.postForm.value).subscribe({
         next: (response) => {
-          this.router.navigate(['/feed']);
+          this.router.navigate(['/posts']);
           this.snackbarService.showSnackbar('Post Created!', null, 3000);
+          this.spinnerService.showSpinner.next(false);
         },
       });
     });
