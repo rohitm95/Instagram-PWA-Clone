@@ -1,79 +1,51 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  inject,
-  QueryList,
-  ViewChildren,
-} from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { getToken, Messaging, onMessage } from '@angular/fire/messaging';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import {
-  MatDialog,
-  MatDialogModule,
-} from '@angular/material/dialog';
-import { MatCardModule } from '@angular/material/card';
-import { DataService } from '../shared/data.service';
-import { SnackbarService } from '../shared/snackbar.service';
-import { Post } from '../shared/post.model';
-import { Router, RouterModule } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { MatListModule } from '@angular/material/list';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { RouterModule } from '@angular/router';
+import { HeaderComponent } from '../shared/header/header.component';
 
 @Component({
   selector: 'app-feed',
   standalone: true,
   imports: [
-    MatIconModule,
-    MatButtonModule,
-    MatCardModule,
-    MatDialogModule,
+    HeaderComponent,
+    MatSidenavModule,
     RouterModule,
-    DatePipe,
+    MatListModule,
+    MatButtonModule,
   ],
   templateUrl: './feed.component.html',
   styleUrl: './feed.component.scss',
 })
-export class FeedComponent implements AfterViewInit {
-  @ViewChildren('postImage') postImages: QueryList<ElementRef<HTMLImageElement>>;
-  dialog = inject(MatDialog);
-  data: Post[] = [];
-  dataService = inject(DataService);
-  snackbarService = inject(SnackbarService);
-  router = inject(Router);
+export class FeedComponent {
+  opened = false;
 
-  ngAfterViewInit(): void {
-    this.getAllPosts();
-    this.onImageError();
+  private readonly _messaging = inject(Messaging);
+
+  ngOnInit(): void {
+    this._getDeviceToken();
+    this._onMessage();
   }
 
-  addNewPost() {
-    this.router.navigate(['create-post']);
-  }
-
-  getAllPosts() {
-    this.dataService.fetchAvailablePosts().subscribe({
-      next: (querySnapshot) => {
-        let docs = querySnapshot.docs;
-        const availablePosts = docs.map((doc) => {
-          return {
-            id: doc.id,
-            title: doc.data()['title'],
-            location: doc.data()['location'],
-            date: doc.data()['date'],
-            image: doc.data()['image'],
-          };
-        });
-        this.data = availablePosts;
-      },
-      error: (error) => {
-        this.snackbarService.showSnackbar('Error fetching posts', null, 3000);
-      },
-    });
-  }
-
-  onImageError() {
-    this.postImages.forEach((image) => {
-      image.nativeElement.src = 'images/broken-image.png';
+  private _getDeviceToken(): void {
+    getToken(this._messaging, {
+      vapidKey:
+        'BFi_Z957BLCN1VjtgklwY9trxV3hzQrSSNnrgMxU2zpqWFxLjzs6v2vPu2qWRQTbdZPA8-MxISQK253bZxkahos',
     })
+      .then((token) => {
+        console.log(token);
+        // save the token in the server, or do whathever you want
+      })
+      .catch((error) => console.log('Token error', error));
+  }
+
+  private _onMessage(): void {
+    onMessage(this._messaging, {
+      next: (payload) => console.log('Message', payload),
+      error: (error) => console.log('Message error', error),
+      complete: () => console.log('Done listening to messages'),
+    });
   }
 }

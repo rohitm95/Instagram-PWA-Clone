@@ -1,0 +1,68 @@
+<main>
+  <img
+    src="images/main-image.jpg"
+    srcset="
+      images/main-image-lg.jpg 1200w,
+      images/main-image.jpg     900w,
+      images/main-image-sm.jpg  480w
+    "
+    alt="Explore the City"
+    class="main-image"
+  />
+  <div class="page-content">
+    <h2 class="text-center color-primary" appColorText>Share your Moments</h2>
+    <div id="shared-moments">
+      <div class="posts-list">
+        @for (post of data; track post.image) {
+          <div class="post">
+            <mat-card class="post-card">
+              <mat-card-header>
+                <div class="profile">
+                  <img src="images/sf-golden-bridge.jpg" alt="Profile Picture" />
+                  <div>
+                    <div>username</div>
+                    <button class="follow-btn">Follow</button>
+                  </div>
+                </div>
+              </mat-card-header>
+              <mat-card-content class="text-center">
+                <img
+                  class="post-image"
+                  #postImage
+                  [src]="post.image"
+                  (error)="onImageError()"
+                />
+                <mat-card-title> {{ post.title }} </mat-card-title>
+              </mat-card-content>
+              <mat-card-footer>
+                <div class="details">
+                  <div>❤️ 120 Likes</div>
+                  <div>💬 45 Comments</div>
+                  <!-- September 25, 2024 -->
+                  <div>📅 {{ post.date | date }}</div>
+                </div>
+              </mat-card-footer>
+              <mat-card-actions>
+                <div class="actions">
+                  <button class="action-btn">Like</button>
+                  <button class="action-btn">Comment</button>
+                  <button class="action-btn">Share</button>
+                </div>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+  <div class="floating-button">
+    <button
+      mat-fab
+      color="accent"
+      id="share-image-button"
+      (click)="addNewPost()"
+    >
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+</main>

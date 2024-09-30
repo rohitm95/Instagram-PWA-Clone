@@ -1,0 +1,98 @@
+$color_1: #000;
+$color_2: #fff;
+$font-family_1: Cabin, sans-serif;
+$background-color_1: #8f8f8f;
+$background-color_2: #2c2c2c;
+
+* {
+  box-sizing: border-box;
+}
+#notfound {
+  position: relative;
+  height: 100vh;
+  .notfound {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+.notfound {
+  max-width: 460px;
+  width: 100%;
+  text-align: center;
+  line-height: 1.4;
+  .notfound-404 {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 50px;
+    > div {
+      &:first-child {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background: #ffa200;
+        transform: rotate(45deg);
+        border: 5px dashed #000;
+        border-radius: 5px;
+        &::before {
+          content: "";
+          position: absolute;
+          left: -5px;
+          right: -5px;
+          bottom: -5px;
+          top: -5px;
+          box-shadow: 0 0 0 5px rgb(0 0 0 / 10%) inset;
+          border-radius: 5px;
+        }
+      }
+    }
+    h1 {
+      font-family: $font-family_1;
+      color: $color_1;
+      font-weight: 700;
+      margin: 0;
+      font-size: 90px;
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      left: 50%;
+      text-align: center;
+      height: 40px;
+      line-height: 40px;
+    }
+  }
+  h2 {
+    font-family: $font-family_1;
+    font-size: 33px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 7px;
+  }
+  p {
+    font-family: $font-family_1;
+    font-size: 16px;
+    color: $color_1;
+    font-weight: 400;
+  }
+  a {
+    font-family: $font-family_1;
+    display: inline-block;
+    padding: 10px 25px;
+    background-color: $background-color_1;
+    border: none;
+    border-radius: 40px;
+    color: $color_2;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: 0.2s all;
+    &:hover {
+      background-color: $background-color_2;
+    }
+  }
+}

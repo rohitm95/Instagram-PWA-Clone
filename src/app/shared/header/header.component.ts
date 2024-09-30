@@ -10,7 +10,7 @@ import { ScreenObserverService } from '../screen-observer-service';
   standalone: true,
   imports: [MatToolbarModule, MatIconModule, MatButtonModule, RouterModule],
   templateUrl: './header.component.html',
-  styleUrl: './header.component.scss'
+  styleUrl: './header.component.scss',
 })
 export class HeaderComponent implements OnInit {
   @Output() sidenav: EventEmitter<any> = new EventEmitter();
@@ -20,12 +20,12 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit(): void {
     this.screenObserver.observe().subscribe((screenSize) => {
-      if(screenSize.matches) {
+      if (screenSize.matches) {
         this.isMobile = true;
       } else {
         this.isMobile = false;
       }
-    })
+    });
   }
 
   toggleSideNav() {
