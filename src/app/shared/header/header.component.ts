@@ -3,7 +3,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule } from '@angular/router';
-import { ScreenObserverService } from '../screen-observer-service';
+import { ScreenObserverService } from '../services/screen-observer-service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -17,6 +18,7 @@ export class HeaderComponent implements OnInit {
   isMobile = false;
 
   screenObserver = inject(ScreenObserverService);
+  authService = inject(AuthService);
 
   ngOnInit(): void {
     this.screenObserver.observe().subscribe((screenSize) => {
@@ -30,5 +32,9 @@ export class HeaderComponent implements OnInit {
 
   toggleSideNav() {
     this.sidenav.emit();
+  }
+
+  logout() {
+    this.authService.logout();
   }
 }

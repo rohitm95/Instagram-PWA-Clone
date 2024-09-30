@@ -5,6 +5,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { RouterModule } from '@angular/router';
 import { HeaderComponent } from '../shared/header/header.component';
+import { AuthService } from '../shared/services/auth.service';
 
 @Component({
   selector: 'app-feed',
@@ -23,10 +24,15 @@ export class FeedComponent {
   opened = false;
 
   private readonly _messaging = inject(Messaging);
+  authService = inject(AuthService);
 
   ngOnInit(): void {
     this._getDeviceToken();
     this._onMessage();
+  }
+
+  logout() {
+    this.authService.logout();
   }
 
   private _getDeviceToken(): void {

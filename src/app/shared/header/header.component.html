@@ -14,8 +14,8 @@
   @if (!isMobile) {
     <button mat-button [routerLink]="['/posts']">Posts</button>
     <button mat-button [routerLink]="['/help']">Help</button>
-    <!-- <button mat-raised-button color="accent" class="enable-notifications">
-        Enable Notifications
-    </button> -->
+    <button mat-raised-button color="warn" (click)="logout()" class="enable-notifications">
+        Logout
+    </button>
   }
 </mat-toolbar>

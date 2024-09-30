@@ -15,10 +15,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { DataService } from '../shared/data.service';
-import { SnackbarService } from '../shared/snackbar.service';
+import { DataService } from '../shared/services/data.service';
+import { SnackbarService } from '../shared/services/snackbar.service';
 import { Router, RouterModule } from '@angular/router';
-import { SpinnerService } from '../shared/spinner.service';
+import { SpinnerService } from '../shared/services/spinner.service';
 
 @Component({
   selector: 'app-create-post',

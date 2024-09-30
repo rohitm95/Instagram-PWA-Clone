@@ -7,6 +7,9 @@ import {
   Firestore,
   getDoc,
   getDocs,
+  orderBy,
+  query,
+  where,
 } from '@angular/fire/firestore';
 import {
   ref,
@@ -14,18 +17,20 @@ import {
   Storage,
   getDownloadURL,
 } from '@angular/fire/storage';
-import { Post } from './post.model';
 import { asyncScheduler, scheduled } from 'rxjs';
+import { Post } from '../post.model';
 
 @Injectable({ providedIn: 'root' })
 export class DataService {
   firestore = inject(Firestore);
   storage = inject(Storage);
+  private userId;
 
   addPostToDatabase(post: Post) {
     let newPost = {
       ...post,
       date: new Date().toISOString(),
+      userId: this.userId
     };
     return scheduled(
       addDoc(collection(this.firestore, 'availablePosts'), newPost),
@@ -33,11 +38,21 @@ export class DataService {
     );
   }
 
-  fetchAvailablePosts() {
-    return scheduled(
-      getDocs(collection(this.firestore, 'availablePosts')),
-      asyncScheduler
+  // fetchAvailablePosts() {
+  //   return scheduled(
+  //     getDocs(collection(this.firestore, 'availablePosts')),
+  //     asyncScheduler
+  //   );
+  // }
+
+  fetchUserPosts(userId: string) {
+    this.userId = userId;
+    const userTasksQuery = query(
+      collection(this.firestore, 'availablePosts'),
+      where('userId', '==', userId),
+      orderBy('date', 'desc')
     );
+    return scheduled(getDocs(userTasksQuery), asyncScheduler);
   }
 
   deletePost(id) {

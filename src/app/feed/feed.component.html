@@ -4,9 +4,9 @@
     <mat-nav-list>
       <mat-list-item class="link" [routerLink]="['/posts']" (click)="sidenav.toggle()">Posts</mat-list-item>
       <mat-list-item class="link" [routerLink]="['/help']" (click)="sidenav.toggle()">Help</mat-list-item>
-      <!-- <button style="margin-left: 10px" mat-raised-button color="accent" class="enable-notifications">
-        Enable Notifications
-      </button> -->
+      <button style="margin-left: 10px" mat-raised-button color="warn" (click)="logout()" class="enable-notifications">
+        Logout
+      </button>
     </mat-nav-list>
   </mat-sidenav>
 
