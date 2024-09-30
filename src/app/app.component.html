@@ -1,8 +1,8 @@
 <mat-sidenav-container autosize class="app-sidenav-container">
-  <mat-sidenav #sidenav mode="side" class="app-sidenav" [opened]="opened">
+  <mat-sidenav #sidenav mode="over" class="app-sidenav" [opened]="opened">
     <h2 class="text-center" style="margin-top: 20px">PWAGram</h2>
     <mat-nav-list>
-      <mat-list-item class="link" [routerLink]="['/']" (click)="sidenav.toggle()">Feed</mat-list-item>
+      <mat-list-item class="link" [routerLink]="['/feed']" (click)="sidenav.toggle()">Feed</mat-list-item>
       <mat-list-item class="link" [routerLink]="['/help']" (click)="sidenav.toggle()">Help</mat-list-item>
       <button style="margin-left: 10px" mat-raised-button color="accent" class="enable-notifications">
         Enable Notifications
