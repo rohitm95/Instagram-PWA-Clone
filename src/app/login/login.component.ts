@@ -10,11 +10,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { asyncScheduler, scheduled, Subscription } from 'rxjs';
 import { AuthService } from '../shared/services/auth.service';
 import { SnackbarService } from '../shared/services/snackbar.service';
 import { SpinnerService } from '../shared/services/spinner.service';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { doc, Firestore, getDoc } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-login',
@@ -39,6 +40,7 @@ export class LoginComponent {
   spinnerService = inject(SpinnerService);
   subscription: Subscription;
   snackbarService = inject(SnackbarService);
+  firestore = inject(Firestore);
 
   ngOnInit(): void {
     this.userLoginForm = this.fb.group({
@@ -61,10 +63,9 @@ export class LoginComponent {
       })
       .subscribe({
         next: (response) => {
-          this.spinnerService.showSpinner.next(false);
-          this.router.navigate(['/posts']);
           const user = response.user;
           user.getIdToken().then((token) => {
+            this.router.navigate(['/posts']);
             window.localStorage.setItem('token', JSON.stringify(token));
           });
         },
@@ -79,6 +80,7 @@ export class LoginComponent {
               null,
               3000
             );
+            this.spinnerService.showSpinner.next(false);
           } else {
             this.spinnerService.showSpinner.next(false);
             this.snackbarService.showSnackbar(error.message, null, 3000);
@@ -89,5 +91,31 @@ export class LoginComponent {
 
   navigateToSignUp() {
     this.router.navigate(['/signup']);
+  }
+
+  loginWithGoogle() {
+    this.authService.loginWithPopup().subscribe((result) => {
+      const user = result.user;
+      user.getIdToken().then((token) => {
+        window.localStorage.setItem('token', JSON.stringify(token));
+      });
+      this.checkUser(user);
+    });
+  }
+
+  checkUser(user) {
+    let userDoc;
+    scheduled(
+      getDoc(doc(this.firestore, 'users', user.uid)),
+      asyncScheduler
+    ).subscribe((data) => {
+      userDoc = data;
+      data.get('uid');
+    });
+    if (userDoc) {
+      this.router.navigate(['/posts']);
+    } else {
+      this.router.navigate(['/signup']);
+    }
   }
 }

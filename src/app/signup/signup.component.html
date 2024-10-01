@@ -1,18 +1,23 @@
 <mat-toolbar color="primary">PWAGram</mat-toolbar>
 <section class="signup-form">
-    <span class="sign-up"> Sign Up </span>
-    <form [formGroup]="userSignupForm" class="flex-col items-center">
-        <mat-form-field>
-            <input matInput placeholder="Your username" type="text" formControlName="name" required />
-            <button matPrefix mat-icon-button class="icon-button" disabled="true">
-                <mat-icon>alternate_email</mat-icon>
-            </button>
-            @if(controls['name'].invalid && controls['name'].touched){
-                <mat-error>Name required or invalid.</mat-error>
-            }
-        </mat-form-field>
+  <span class="sign-up"> We need your some more details </span>
+  <form [formGroup]="userSignupForm" class="flex-col items-center">
+    <mat-form-field>
+      <input
+        matInput
+        placeholder="Your username"
+        type="text"
+        formControlName="name"
+      />
+      <button matPrefix mat-icon-button class="icon-button" disabled="true">
+        <mat-icon>alternate_email</mat-icon>
+      </button>
+      @if (controls['name'].invalid && controls['name'].touched) {
+        <mat-error>Username is required.</mat-error>
+      }
+    </mat-form-field>
 
-        <mat-form-field>
+    <!-- <mat-form-field>
             <input matInput placeholder="Your email" type="email" formControlName="email" required />
             <button matPrefix mat-icon-button class="icon-button" disabled="true">
                 <mat-icon>mail_outline</mat-icon>
@@ -35,14 +40,23 @@
             @if(controls['password'].invalid && controls['password'].touched) {
                 <mat-error>Password required or invalid.</mat-error>
             }
-        </mat-form-field>
+        </mat-form-field> -->
 
-        <button mat-raised-button color="primary" type="submit" class="login" [disabled]="userSignupForm.invalid"
+    <!-- <button mat-raised-button color="primary" type="submit" class="login" [disabled]="userSignupForm.invalid"
             (click)="signup(userSignupForm)">
             Sign Up
         </button>
         <div class="not-a-member">Already a member?
             <span class="sign-in" (click)="navigateToSignIn()">Sign In</span>
-        </div>
-    </form>
+        </div> -->
+  </form>
+  <div class="sign-up-button">
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="updateProfile(userSignupForm)"
+    >
+      Proceed
+    </button>
+  </div>
 </section>

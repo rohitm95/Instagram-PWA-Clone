@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterOutlet } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
@@ -19,6 +19,7 @@ export class AppComponent {
   spinnerService = inject(SpinnerService);
   isLoadingResults = false;
   subscription: Subscription;
+  cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     if (this.swUpdate.isEnabled) {
@@ -34,6 +35,7 @@ export class AppComponent {
     this.subscription = this.spinnerService.showSpinner.subscribe(
       (response) => {
         this.isLoadingResults = response;
+        this.cdr.detectChanges();
       }
     );
   }

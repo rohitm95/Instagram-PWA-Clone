@@ -23,12 +23,16 @@ form {
 }
 
 .sign-up {
-    font-size: 40px;
+    font-size: 20px;
     font-style: normal;
     font-weight: 700;
-    line-height: 80px;
     letter-spacing: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.sign-up-button {
+    display: flex;
+    justify-content: center;
 }

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from '@angular/fire/auth';
+import { Auth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, signOut } from '@angular/fire/auth';
 import { scheduled, asyncScheduler } from 'rxjs';
 import { AuthData } from '../auth-data.model';
 import { Router } from '@angular/router';
@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 export class AuthService {
   private auth: Auth = inject(Auth);
   router = inject(Router);
+  provider = new GoogleAuthProvider();
   constructor() { }
 
   registerUser(authData: AuthData) {
@@ -34,5 +35,9 @@ export class AuthService {
     window.localStorage.removeItem('token');
     signOut(this.auth);
     this.router.navigate(['/login']);
+  }
+
+  loginWithPopup() {
+    return scheduled(signInWithPopup(this.auth, this.provider), asyncScheduler)
   }
 }

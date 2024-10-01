@@ -41,6 +41,7 @@ export class PostsListComponent implements AfterViewInit {
   spinnerService = inject(SpinnerService);
   auth = inject(Auth);
   authState$ = authState(this.auth);
+  userDetails;
 
   ngAfterViewInit(): void {
     this.spinnerService.showSpinner.next(true);
@@ -50,6 +51,7 @@ export class PostsListComponent implements AfterViewInit {
 
   getAllPosts() {
     this.authState$.subscribe((user) => {
+      this.userDetails = user;
       if (user) {
         this.dataService.fetchUserPosts(user.uid).subscribe({
           next: (querySnapshot) => {

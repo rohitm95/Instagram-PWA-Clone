@@ -12,47 +12,55 @@
   <div class="page-content">
     <h2 class="text-center color-primary" appColorText>Share your Moments</h2>
     <div id="shared-moments">
-      <div class="posts-list">
-        @for (post of data; track post.image) {
-          <div class="post">
-            <mat-card class="post-card">
-              <mat-card-header>
-                <div class="profile">
-                  <img src="images/sf-golden-bridge.jpg" alt="Profile Picture" />
-                  <div>
-                    <div>username</div>
-                    <button class="follow-btn">Follow</button>
+      @if (data.length) {
+        <div class="posts-list">
+          @for (post of data; track post.image) {
+            <div class="post">
+              <mat-card class="post-card">
+                <mat-card-header>
+                  <div class="profile">
+                    <img [src]="userDetails.photoURL" alt="Profile Picture" />
+                    <div>
+                      <div>{{userDetails.displayName}}</div>
+                      <button class="follow-btn">Follow</button>
+                    </div>
                   </div>
-                </div>
-              </mat-card-header>
-              <mat-card-content class="text-center">
-                <img
-                  class="post-image"
-                  #postImage
-                  [src]="post.image"
-                  (error)="onImageError()"
-                />
-                <mat-card-title> {{ post.title }} </mat-card-title>
-              </mat-card-content>
-              <mat-card-footer>
-                <div class="details">
-                  <div>❤️ 120 Likes</div>
-                  <div>💬 45 Comments</div>
-                  <!-- September 25, 2024 -->
-                  <div>📅 {{ post.date | date }}</div>
-                </div>
-              </mat-card-footer>
-              <mat-card-actions>
-                <div class="actions">
-                  <button class="action-btn">Like</button>
-                  <button class="action-btn">Comment</button>
-                  <button class="action-btn">Share</button>
-                </div>
-              </mat-card-actions>
-            </mat-card>
-          </div>
-        }
+                </mat-card-header>
+                <mat-card-content class="text-center">
+                  <img
+                    class="post-image"
+                    #postImage
+                    [src]="post.image"
+                    (error)="onImageError()"
+                  />
+                  <mat-card-title> {{ post.title }} </mat-card-title>
+                </mat-card-content>
+                <mat-card-footer>
+                  <div class="details">
+                    <div>❤️ 120 Likes</div>
+                    <div>💬 45 Comments</div>
+                    <!-- September 25, 2024 -->
+                    <div>📅 {{ post.date | date }}</div>
+                  </div>
+                </mat-card-footer>
+                <mat-card-actions>
+                  <div class="actions">
+                    <button class="action-btn">Like</button>
+                    <button class="action-btn">Comment</button>
+                    <button class="action-btn">Share</button>
+                  </div>
+                </mat-card-actions>
+              </mat-card>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="container">
+          <div class="emoji">😢</div>
+          <h1 class="no-post-title">No Posts Yet</h1>
+          <p class="no-post-desc">It looks like you haven't shared anything yet. Start posting to show your memories!</p>
       </div>
+      }
     </div>
   </div>
   <div class="floating-button">

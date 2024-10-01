@@ -26,7 +26,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     MatButtonModule,
     MatIconModule,
     ReactiveFormsModule,
-    MatToolbarModule
+    MatToolbarModule,
   ],
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.scss',
@@ -44,8 +44,8 @@ export class SignupComponent {
 
   ngOnInit(): void {
     this.userSignupForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]],
+      // email: ['', [Validators.required, Validators.email]],
+      // password: ['', [Validators.required]],
       name: ['', [Validators.required]],
     });
   }
@@ -71,12 +71,21 @@ export class SignupComponent {
         updateProfile(this.auth.currentUser, {
           displayName: formvalue.value.name,
           photoURL:
-            'https://firebase.googleapis.com/v0/b/to-do-app-3569d.appspot.com/o/default-profile-pic.png?alt=media&token=09a77c81-9576-438c-8c35-a74119a26103',
+            'https://firebasestorage.googleapis.com/v0/b/pwagram-f89ff.appspot.com/o/images%2Fdefault-profile-pic.png?alt=media&token=18eb4938-dfbf-416a-86ee-d3d44a8a9dc3',
         }).catch((err) => console.log(err));
       },
       error: (error) => {
         this.snackbarService.showSnackbar(error.message, null, 3000);
       },
     });
+  }
+
+  updateProfile(formvalue: FormGroup) {
+    updateProfile(this.auth.currentUser, {
+      displayName: formvalue.value.name,
+      photoURL:
+        'https://firebase.googleapis.com/v0/b/to-do-app-3569d.appspot.com/o/default-profile-pic.png?alt=media&token=09a77c81-9576-438c-8c35-a74119a26103',
+    }).catch((err) => console.log(err));
+    this.router.navigate(['/posts']);
   }
 }
