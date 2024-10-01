@@ -71,7 +71,7 @@ export class SignupComponent {
         updateProfile(this.auth.currentUser, {
           displayName: formvalue.value.name,
           photoURL:
-            'https://firebasestorage.googleapis.com/v0/b/pwagram-f89ff.appspot.com/o/images/default-profile-pic.png?alt=media&token=18eb4938-dfbf-416a-86ee-d3d44a8a9dc3',
+            'https://firebasestorage.googleapis.com/v0/b/pwagram-f89ff.appspot.com/o/images%2Fdefault-profile-pic.png?alt=media&token=18eb4938-dfbf-416a-86ee-d3d44a8a9dc3',
         }).catch((err) => console.log(err));
       },
       error: (error) => {
