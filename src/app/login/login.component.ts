@@ -10,12 +10,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
-import { asyncScheduler, scheduled, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { AuthService } from '../shared/services/auth.service';
 import { SnackbarService } from '../shared/services/snackbar.service';
 import { SpinnerService } from '../shared/services/spinner.service';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { doc, Firestore, getDoc } from '@angular/fire/firestore';
+import { Firestore } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-login',
@@ -93,29 +93,27 @@ export class LoginComponent {
     this.router.navigate(['/signup']);
   }
 
-  loginWithGoogle() {
-    this.authService.loginWithPopup().subscribe((result) => {
-      const user = result.user;
-      user.getIdToken().then((token) => {
-        window.localStorage.setItem('token', JSON.stringify(token));
-      });
-      this.checkUser(user);
-    });
-  }
+  // loginWithGoogle() {
+  //   this.authService.loginWithPopup().subscribe((result) => {
+  //     const user = result.user;
+  //     user.getIdToken().then((token) => {
+  //       window.localStorage.setItem('token', JSON.stringify(token));
+  //     });
+  //     this.checkUser(user);
+  //   });
+  // }
 
-  checkUser(user) {
-    let userDoc;
-    scheduled(
-      getDoc(doc(this.firestore, 'users', user.uid)),
-      asyncScheduler
-    ).subscribe((data) => {
-      userDoc = data;
-      data.get('uid');
-    });
-    if (userDoc) {
-      this.router.navigate(['/posts']);
-    } else {
-      this.router.navigate(['/signup']);
-    }
-  }
+  // async checkUser(user) {
+  //   const userDoc = await getDoc(doc(this.firestore, 'users', user.uid));
+  //   console.log(userDoc.data())
+  //   if (userDoc.exists()) {
+  //     this.router.navigate(['/posts']);
+  //   } else {
+  //     let newUser = {
+  //       userId: user.uid,
+  //     };
+  //     await setDoc(doc(this.firestore, 'users', user.uid), user.uid);
+  //     this.router.navigate(['/signup']);
+  //   }
+  // }
 }
