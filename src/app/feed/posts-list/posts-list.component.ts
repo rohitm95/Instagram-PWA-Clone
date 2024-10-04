@@ -14,8 +14,8 @@ import { SnackbarService } from '../../shared/services/snackbar.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterModule } from '@angular/router';
-import { SpinnerService } from '../../shared/services/spinner.service';
 import { Auth, authState } from '@angular/fire/auth';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-posts-list',
@@ -26,6 +26,7 @@ import { Auth, authState } from '@angular/fire/auth';
     MatIconModule,
     MatButtonModule,
     RouterModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './posts-list.component.html',
   styleUrl: './posts-list.component.scss',
@@ -38,15 +39,12 @@ export class PostsListComponent implements AfterViewInit {
   snackbarService = inject(SnackbarService);
   data: Post[] = [];
   router = inject(Router);
-  spinnerService = inject(SpinnerService);
   auth = inject(Auth);
   authState$ = authState(this.auth);
   userDetails;
 
   ngAfterViewInit(): void {
-    this.spinnerService.showSpinner.next(true);
     this.getAllPosts();
-    // this.onImageError();
   }
 
   getAllPosts() {
@@ -66,7 +64,6 @@ export class PostsListComponent implements AfterViewInit {
               };
             });
             this.data = availablePosts;
-            this.spinnerService.showSpinner.next(false);
           },
           error: (error) => {
             this.snackbarService.showSnackbar(
