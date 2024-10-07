@@ -1,5 +1,4 @@
 import {
-  AfterViewInit,
   Component,
   ElementRef,
   inject,
@@ -34,7 +33,7 @@ import { SpinnerService } from '../shared/services/spinner.service';
     RouterModule,
   ],
 })
-export class CreatePostComponent implements OnInit, AfterViewInit {
+export class CreatePostComponent implements OnInit {
   @ViewChild('video') video: ElementRef;
   @ViewChild('canvas') canvas: ElementRef<HTMLCanvasElement>;
   @ViewChild('locationLoader') locationLoader: ElementRef;
@@ -66,13 +65,6 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
     } else {
       this.snackbarService.showSnackbar('You are offline!', null, 3000);
     }
-  }
-
-  ngAfterViewInit(): void {
-    // document.getElementById('location-loader').style.display = 'none';
-    // if (!('geolocation' in navigator)) {
-    //   document.getElementById('location-button').style.display = 'none';
-    // }
   }
 
   onFileSelected(event: any): void {
