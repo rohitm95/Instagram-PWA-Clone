@@ -1,5 +1,5 @@
 <mat-toolbar color="primary" class="header">
-  @if (isMobile) {
+  @if (isMobile | async) {
     <button
         mat-icon-button
         class="sidenav-toggle"

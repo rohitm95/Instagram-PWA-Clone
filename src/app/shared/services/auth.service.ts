@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 export class AuthService {
   private auth: Auth = inject(Auth);
   router = inject(Router);
-  provider = new GoogleAuthProvider();
+  // provider = new GoogleAuthProvider();
   constructor() { }
 
   registerUser(authData: AuthData) {
@@ -37,7 +37,7 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
-  loginWithPopup() {
-    return scheduled(signInWithPopup(this.auth, this.provider), asyncScheduler)
-  }
+  // loginWithPopup() {
+  //   return scheduled(signInWithPopup(this.auth, this.provider), asyncScheduler)
+  // }
 }

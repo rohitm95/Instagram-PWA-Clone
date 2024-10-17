@@ -4,11 +4,12 @@ import { RouterOutlet } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
 import { scheduled, asyncScheduler, tap, Subscription } from 'rxjs';
 import { SpinnerService } from './shared/services/spinner.service';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, MatProgressSpinnerModule],
+  imports: [RouterOutlet, MatProgressSpinnerModule, AsyncPipe],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
@@ -17,8 +18,7 @@ export class AppComponent {
 
   swUpdate = inject(SwUpdate);
   spinnerService = inject(SpinnerService);
-  isLoadingResults = false;
-  subscription: Subscription;
+  isLoadingResults;
   cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
@@ -32,11 +32,6 @@ export class AppComponent {
       );
     }
 
-    this.subscription = this.spinnerService.showSpinner.subscribe(
-      (response) => {
-        this.isLoadingResults = response;
-        this.cdr.detectChanges();
-      }
-    );
+    this.isLoadingResults = this.spinnerService.showSpinner$;
   }
 }

@@ -5,30 +5,27 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule } from '@angular/router';
 import { ScreenObserverService } from '../services/screen-observer-service';
 import { AuthService } from '../services/auth.service';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [MatToolbarModule, MatIconModule, MatButtonModule, RouterModule],
+  imports: [
+    MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+    RouterModule,
+    AsyncPipe,
+  ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent {
   @Output() sidenav: EventEmitter<any> = new EventEmitter();
-  isMobile = false;
-
   screenObserver = inject(ScreenObserverService);
-  authService = inject(AuthService);
+  isMobile = this.screenObserver.updateScreenSize$;
 
-  ngOnInit(): void {
-    this.screenObserver.observe().subscribe((screenSize) => {
-      if (screenSize.matches) {
-        this.isMobile = true;
-      } else {
-        this.isMobile = false;
-      }
-    });
-  }
+  authService = inject(AuthService);
 
   toggleSideNav() {
     this.sidenav.emit();

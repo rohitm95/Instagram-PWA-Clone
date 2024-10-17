@@ -59,7 +59,7 @@ export class SignupComponent {
   }
 
   signup(formvalue: FormGroup) {
-    this.spinnerService.showSpinner.next(true);
+    this.spinnerService.showSpinner(true);
     this.authService.registerUser(formvalue.value).subscribe({
       next: (response) => {
         this.authService.logout();

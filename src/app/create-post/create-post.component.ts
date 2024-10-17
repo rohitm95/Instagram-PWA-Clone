@@ -142,14 +142,14 @@ export class CreatePostComponent implements OnInit {
   }
 
   createPost() {
-    this.spinnerService.showSpinner.next(true);
+    this.spinnerService.showSpinner(true);
     this.dataService.uploadFile(this.imageData).then((result) => {
       this.postForm.controls['image'].setValue(result);
       this.dataService.addPostToDatabase(this.postForm.value).subscribe({
         next: (response) => {
           this.router.navigate(['/posts']);
           this.snackbarService.showSnackbar('Post Created!', null, 3000);
-          this.spinnerService.showSpinner.next(false);
+          this.spinnerService.showSpinner(false);
         },
       });
     });

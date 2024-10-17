@@ -15,7 +15,6 @@ import { AuthService } from '../shared/services/auth.service';
 import { SnackbarService } from '../shared/services/snackbar.service';
 import { SpinnerService } from '../shared/services/spinner.service';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Firestore } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-login',
@@ -40,14 +39,13 @@ export class LoginComponent {
   spinnerService = inject(SpinnerService);
   subscription: Subscription;
   snackbarService = inject(SnackbarService);
-  firestore = inject(Firestore);
 
   ngOnInit(): void {
     this.userLoginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
     });
-    this.spinnerService.showSpinner.next(false);
+    this.spinnerService.showSpinner(false);
   }
 
   get controls() {
@@ -55,7 +53,7 @@ export class LoginComponent {
   }
 
   login(formData: FormGroup) {
-    this.spinnerService.showSpinner.next(true);
+    this.spinnerService.showSpinner(true);
     this.authService
       .login({
         email: formData.value.email,
@@ -74,15 +72,15 @@ export class LoginComponent {
             error.message ===
             'Firebase: Error (auth/invalid-login-credentials).'
           ) {
-            this.spinnerService.showSpinner.next(false);
+            this.spinnerService.showSpinner(false);
             this.snackbarService.showSnackbar(
               'Invalid login credentials',
               null,
               3000
             );
-            this.spinnerService.showSpinner.next(false);
+            this.spinnerService.showSpinner(false);
           } else {
-            this.spinnerService.showSpinner.next(false);
+            this.spinnerService.showSpinner(false);
             this.snackbarService.showSnackbar(error.message, null, 3000);
           }
         },
