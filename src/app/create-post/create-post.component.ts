@@ -5,11 +5,7 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -18,6 +14,7 @@ import { DataService } from '../shared/services/data.service';
 import { SnackbarService } from '../shared/services/snackbar.service';
 import { Router, RouterModule } from '@angular/router';
 import { SpinnerService } from '../shared/services/spinner.service';
+import { Auth, authState } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-create-post',
@@ -49,6 +46,10 @@ export class CreatePostComponent implements OnInit {
   selectedFile: any = null;
   imageURL;
   spinnerService = inject(SpinnerService);
+  auth = inject(Auth);
+  authState$ = authState(this.auth);
+  userId;
+  front = false;
 
   ngOnInit(): void {
     if (navigator.onLine) {
@@ -62,6 +63,9 @@ export class CreatePostComponent implements OnInit {
 
       this.initCamera();
       this.getLocation();
+      this.authState$.subscribe((user) => {
+        this.userId = user.uid;
+      });
     } else {
       this.snackbarService.showSnackbar('You are offline!', null, 3000);
     }
@@ -83,7 +87,24 @@ export class CreatePostComponent implements OnInit {
     document.getElementById('canvas').style.display = 'none';
     document.getElementById('player').style.display = 'block';
     navigator.mediaDevices
-      .getUserMedia({ video: true })
+      .getUserMedia({ video: { facingMode: 'environment' } })
+      .then((stream) => {
+        document.getElementById('pick-image').style.display = 'none';
+        this.video.nativeElement.srcObject = stream;
+      })
+      .catch((error) => {
+        document.getElementById('pick-image').style.display = 'block';
+        document.getElementById('capture-image').style.display = 'none';
+        console.error('Error accessing camera:', error);
+      });
+  }
+
+  flipCamera() {
+    this.front = !this.front;
+    document.getElementById('canvas').style.display = 'none';
+    document.getElementById('player').style.display = 'block';
+    navigator.mediaDevices
+      .getUserMedia({ video: { facingMode: this.front ? "user" : "environment" } })
       .then((stream) => {
         document.getElementById('pick-image').style.display = 'none';
         this.video.nativeElement.srcObject = stream;
@@ -145,13 +166,18 @@ export class CreatePostComponent implements OnInit {
     this.spinnerService.showSpinner(true);
     this.dataService.uploadFile(this.imageData).then((result) => {
       this.postForm.controls['image'].setValue(result);
-      this.dataService.addPostToDatabase(this.postForm.value).subscribe({
-        next: (response) => {
-          this.router.navigate(['/posts']);
-          this.snackbarService.showSnackbar('Post Created!', null, 3000);
-          this.spinnerService.showSpinner(false);
-        },
-      });
+      this.dataService
+        .addPostToDatabase(this.postForm.value, this.userId)
+        .subscribe({
+          next: (response) => {
+            this.router.navigate(['/posts']);
+            this.snackbarService.showSnackbar('Post Created!', null, 3000);
+            this.spinnerService.showSpinner(false);
+          },
+          error: (err) => {
+            this.snackbarService.showSnackbar(err, null, 3000);
+          }
+        });
     });
   }
 }

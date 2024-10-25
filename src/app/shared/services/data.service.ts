@@ -24,13 +24,12 @@ import { Post } from '../post.model';
 export class DataService {
   firestore = inject(Firestore);
   storage = inject(Storage);
-  private userId;
 
-  addPostToDatabase(post: Post) {
+  addPostToDatabase(post: Post, userId) {
     let newPost = {
       ...post,
       date: new Date().toISOString(),
-      userId: this.userId
+      userId: userId
     };
     return scheduled(
       addDoc(collection(this.firestore, 'availablePosts'), newPost),
@@ -46,7 +45,6 @@ export class DataService {
   // }
 
   fetchUserPosts(userId: string) {
-    this.userId = userId;
     const userTasksQuery = query(
       collection(this.firestore, 'availablePosts'),
       where('userId', '==', userId),
