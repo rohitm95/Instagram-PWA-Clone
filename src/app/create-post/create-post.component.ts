@@ -155,7 +155,7 @@ export class CreatePostComponent implements OnInit {
       track.stop();
     });
 
-    this.imageData = this.canvas.nativeElement.toDataURL('image/jpeg');
+    this.imageData = this.canvas.nativeElement.toDataURL('image/webp');
   }
 
   onNoClick(): void {
