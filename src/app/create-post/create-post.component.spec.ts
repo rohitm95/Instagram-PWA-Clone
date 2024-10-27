@@ -5,12 +5,13 @@ import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { getStorage, provideStorage } from '@angular/fire/storage';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ReactiveFormsModule } from '@angular/forms';
-import { of } from 'rxjs';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { of, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { DataService } from '../shared/services/data.service';
 import { SnackbarService } from '../shared/services/snackbar.service';
 import { SpinnerService } from '../shared/services/spinner.service';
+import { getAuth, provideAuth } from '@angular/fire/auth';
 
 describe('CreatePostComponent', () => {
   let component: CreatePostComponent;
@@ -54,6 +55,8 @@ describe('CreatePostComponent', () => {
         ),
         provideFirestore(() => getFirestore()),
         provideStorage(() => getStorage()),
+        provideAuth(() => getAuth()),
+        { provide: FormBuilder, useValue: new FormBuilder() },
         { provide: DataService, useValue: dataServiceMock },
         { provide: SnackbarService, useValue: snackbarServiceMock },
         { provide: Router, useValue: routerMock },
@@ -64,7 +67,6 @@ describe('CreatePostComponent', () => {
     fixture = TestBed.createComponent(CreatePostComponent);
     component = fixture.componentInstance;
     component.video = { nativeElement: { srcObject: null } };
-    // component.canvas = { nativeElement: { getContext: () => ({}) } };
     component.imageData = null;
     fixture.detectChanges();
   });
@@ -73,33 +75,21 @@ describe('CreatePostComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  // it('should initialize the form and get location on ngOnInit', () => {
-  //   spyOn(navigator.geolocation, 'getCurrentPosition').and.callFake((success) => {
-  //     success({
-  //       coords: Object({ latitude: 0, longitude: 0 }),
-  //       timestamp: 0,
-  //       toJSON: function () {
-  //         throw new Error('Function not implemented.');
-  //       }
-  //     });
-  //   });
+  it('should create the form on ngOnInit', () => {
+    spyOn(component.authState$, 'subscribe').and.callFake((callback) => {
+      callback({ uid: 'testUserId' });
+    });
 
-  //   component.ngOnInit();
+    component.ngOnInit();
 
-  //   expect(component.postForm).toBeDefined();
-  //   expect(snackbarServiceMock.showSnackbar).not.toHaveBeenCalled();
-  // });
-
-  // it('should show snackbar if offline on ngOnInit', () => {
-  //   spyOn(navigator, 'onLine').and.returnValue(false);
-
-  //   component.ngOnInit();
-
-  //   expect(snackbarServiceMock.showSnackbar).toHaveBeenCalledWith('You are offline!', null, 3000);
-  // });
+    expect(component.postForm).toBeDefined();
+    expect(component.postForm.controls['title']).toBeDefined();
+    expect(component.postForm.controls['location']).toBeDefined();
+    expect(component.postForm.controls['image']).toBeDefined();
+  });
 
   it('should handle file selection', () => {
-    const file = new Blob(['test'], { type: 'image/jpeg' });
+    const file = new Blob(['test'], { type: 'image/webp' });
     const event = { target: { files: [file] } };
 
     component.onFileSelected(event);
@@ -108,64 +98,42 @@ describe('CreatePostComponent', () => {
     expect(component.imageData).toEqual(file);
   });
 
-  // it('should initialize camera', () => {
-  //   spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.resolve({}));
-
-  //   component.initCamera();
-
-  //   expect(document.getElementById('canvas').style.display).toBe('none');
-  //   expect(document.getElementById('player').style.display).toBe('block');
-  // });
-
-  // it('should handle location fetching', () => {
-  //   spyOn(navigator.geolocation, 'getCurrentPosition').and.callFake((success) => {
-  //     success({ coords: { latitude: 0, longitude: 0 } });
-  //   });
-
-  //   component.getLocation();
-
-  //   expect(component.postForm.controls['location'].value).toEqual({ lat: 0, lng: 0 });
-  // });
-
-  it('should re-initialize camera on reCapture', () => {
-    spyOn(component, 'initCamera');
-
+  it('should re-capture image', () => {
     component.reCapture();
 
     expect(component.imageData).toBeNull();
-    expect(component.initCamera).toHaveBeenCalled();
   });
 
-  // it('should capture image', () => {
-  //   component.canvas.nativeElement.getContext = () => ({
-  //     drawImage: jasmine.createSpy(),
-  //   });
-  //   component.video.nativeElement.videoWidth = 640;
-  //   component.video.nativeElement.videoHeight = 480;
-
-  //   component.captureImage();
-
-  //   expect(component.canvas.nativeElement.width).toBe(640);
-  //   expect(component.canvas.nativeElement.height).toBe(480);
-  // });
-
-  it('should navigate on onNoClick', () => {
+  it('should navigate on no click', () => {
     component.onNoClick();
 
     expect(routerMock.navigate).toHaveBeenCalledWith(['/posts']);
   });
 
-  it('should create a post', (done) => {
+  it('should create post successfully', (done) => {
     component.imageData = 'mockImageData';
+
     component.createPost();
 
     expect(spinnerServiceMock.showSpinner).toHaveBeenCalledWith(true);
+
     setTimeout(() => {
       expect(dataServiceMock.uploadFile).toHaveBeenCalledWith('mockImageData');
-      expect(dataServiceMock.addPostToDatabase).toHaveBeenCalledWith(component.postForm.value);
+      expect(dataServiceMock.addPostToDatabase).toHaveBeenCalledWith(component.postForm.value, component.userId);
       expect(routerMock.navigate).toHaveBeenCalledWith(['/posts']);
       expect(snackbarServiceMock.showSnackbar).toHaveBeenCalledWith('Post Created!', null, 3000);
       expect(spinnerServiceMock.showSpinner).toHaveBeenCalledWith(false);
+      done();
+    }, 0);
+  });
+
+  it('should handle error on create post', (done) => {
+    dataServiceMock.addPostToDatabase.and.returnValue(throwError(() => new Error('Error')));
+
+    component.createPost();
+
+    setTimeout(() => {
+      expect(snackbarServiceMock.showSnackbar).toHaveBeenCalledWith('Error', null, 3000);
       done();
     }, 0);
   });

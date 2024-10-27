@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgOptimizedImage } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -27,6 +27,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatButtonModule,
     RouterModule,
     MatProgressSpinnerModule,
+    NgOptimizedImage,
   ],
   templateUrl: './posts-list.component.html',
   styleUrl: './posts-list.component.scss',

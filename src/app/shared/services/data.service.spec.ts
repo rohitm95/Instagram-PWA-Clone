@@ -63,7 +63,8 @@ describe('DataService', () => {
       title: 'Test Post',
       location: 'Test Content',
     };
-    service.addPostToDatabase(post).subscribe(() => {
+    const userId = '1abc';
+    service.addPostToDatabase(post, userId).subscribe(() => {
       expect(firestoreMock.collection).toHaveBeenCalledWith('availablePosts');
       done();
     });

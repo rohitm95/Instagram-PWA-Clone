@@ -7,7 +7,6 @@ import { from, of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { ScreenObserverService } from '../services/screen-observer-service';
-import { BreakpointState } from '@angular/cdk/layout';
 
 describe('HeaderComponent', () => {
   let component: HeaderComponent;

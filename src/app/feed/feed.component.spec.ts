@@ -4,21 +4,29 @@ import { FeedComponent } from './feed.component';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { AuthService } from '../shared/services/auth.service';
+import { getMessaging, getToken, Messaging, onMessage, provideMessaging } from '@angular/fire/messaging';
 import { from } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { AuthService } from '../shared/services/auth.service';
 
 describe('FeedComponent', () => {
   let component: FeedComponent;
   let fixture: ComponentFixture<FeedComponent>;
-  let authService: jasmine.SpyObj<AuthService>;
+  let authServiceMock: any;
+  let messagingMock: any;
 
   beforeEach(async () => {
+    authServiceMock = {
+      logout: jasmine.createSpy(),
+    };
+
+    messagingMock = {
+      // Mocking the methods we will use
+    };
     const activatedRouteMock = {
       params: from([{ id: '123' }]), // Mocking route parameters
       // You can add other properties like 'data', 'queryParams', etc. as needed
     };
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['logout']);
     await TestBed.configureTestingModule({
       imports: [FeedComponent, BrowserAnimationsModule],
       providers: [
@@ -35,18 +43,18 @@ describe('FeedComponent', () => {
         ),
         // await isSupported()
         provideAuth(() => getAuth()),
+        provideMessaging(() => getMessaging()),
+        { provide: AuthService, useValue: authServiceMock },
         {
           provide: ActivatedRoute,
           useValue: activatedRouteMock, // Provide the mock
         },
-        { provide: AuthService, useValue: authServiceSpy },
       ]
     })
     .compileComponents();
 
     fixture = TestBed.createComponent(FeedComponent);
     component = fixture.componentInstance;
-    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     fixture.detectChanges();
   });
 
@@ -54,9 +62,56 @@ describe('FeedComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should initialize and get device token on ngOnInit', () => {
+    const getTokenSpy = spyOn(messagingMock, 'getToken').and.returnValue(Promise.resolve('mockToken'));
+    const onMessageSpy = spyOn(messagingMock, 'onMessage').and.callFake((_, { next }) => {
+      next({ message: 'Test message' });
+    });
+
+    component.ngOnInit();
+
+    expect(getTokenSpy).toHaveBeenCalled();
+    expect(onMessageSpy).toHaveBeenCalled();
+  });
+
   it('should call logout method', () => {
     component.logout();
 
-    expect(authService.logout).toHaveBeenCalled();
+    expect(authServiceMock.logout).toHaveBeenCalled();
+  });
+
+  it('should handle token retrieval error', (done) => {
+    const consoleLogSpy = spyOn(console, 'log');
+    spyOn(messagingMock, 'getToken').and.returnValue(Promise.reject('Token error'));
+
+    component['_getDeviceToken']();
+
+    setTimeout(() => {
+      expect(consoleLogSpy).toHaveBeenCalledWith('Token error', 'Token error');
+      done();
+    }, 0);
+  });
+
+  it('should handle message reception', () => {
+    const consoleLogSpy = spyOn(console, 'log');
+    const onMessageSpy = spyOn(messagingMock, 'onMessage').and.callFake((_, { next }) => {
+      next({ message: 'Test message' });
+    });
+
+    component['_onMessage']();
+
+    expect(consoleLogSpy).toHaveBeenCalledWith('Message', { message: 'Test message' });
+    expect(consoleLogSpy).toHaveBeenCalledWith('Done listening to messages');
+  });
+
+  it('should handle message error', () => {
+    const consoleLogSpy = spyOn(console, 'log');
+    const onMessageSpy = spyOn(messagingMock, 'onMessage').and.callFake((_, { error }) => {
+      error('Message error');
+    });
+
+    component['_onMessage']();
+
+    expect(consoleLogSpy).toHaveBeenCalledWith('Message error', 'Message error');
   });
 });

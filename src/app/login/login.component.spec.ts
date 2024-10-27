@@ -82,8 +82,7 @@ describe('LoginComponent', () => {
 
   it('should handle login error with invalid credentials', () => {
     component.ngOnInit();
-    const errorResponse = { message: 'Firebase: Error (auth/invalid-login-credentials).' };
-    authSpy.login.and.returnValue(throwError(errorResponse));
+    authSpy.login.and.returnValue(throwError(() => new Error('Firebase: Error (auth/invalid-login-credentials).')));
 
     component.login(component.userLoginForm);
 
@@ -94,8 +93,7 @@ describe('LoginComponent', () => {
 
   it('should handle generic login error', () => {
     component.ngOnInit();
-    const errorResponse = 'Some other error occurred.';
-    authSpy.login.and.returnValue(throwError(() => new Error(errorResponse)));
+    authSpy.login.and.returnValue(throwError(() => new Error('Some other error occurred.')));
 
     component.login(component.userLoginForm);
 
