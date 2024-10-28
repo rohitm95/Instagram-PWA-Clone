@@ -4,8 +4,8 @@ import { CanActivateFn } from '@angular/router';
 import { authGuard } from './auth.guard';
 
 describe('authGuard', () => {
-  const executeGuard: CanActivateFn = (...guardParameters) => 
-      TestBed.runInInjectionContext(() => authGuard(...guardParameters));
+  const executeGuard: CanActivateFn = (...guardParameters) =>
+    TestBed.runInInjectionContext(() => authGuard(...guardParameters));
   let routerMock: any;
 
   beforeEach(() => {
@@ -30,14 +30,18 @@ describe('authGuard', () => {
     // Simulate a token being present in localStorage
     spyOn(window.localStorage, 'getItem').and.returnValue('mockToken');
 
-    const result = authGuard(null, null);
+    const result = TestBed.runInInjectionContext(() => {
+      return authGuard(null, null);
+    });
 
     expect(result).toBeTrue();
     expect(routerMock.navigate).not.toHaveBeenCalled();
   });
 
   it('should redirect to login if token does not exist', () => {
-    const result = authGuard(null, null);
+    const result = TestBed.runInInjectionContext(() => {
+      return authGuard(null, null);
+    });
 
     expect(result).toBeUndefined(); // Since navigate returns a Promise
     expect(routerMock.navigate).toHaveBeenCalledWith(['/login']);

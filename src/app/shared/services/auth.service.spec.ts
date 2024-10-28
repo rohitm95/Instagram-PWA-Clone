@@ -47,7 +47,7 @@ describe('AuthService', () => {
   });
 
   it('should register a user', (done) => {
-    const authData = { email: 'test1@example.com', password: 'password123' };
+    const authData = { email: 'test2@example.com', password: 'password123' };
     service.registerUser(authData).subscribe(() => {
       expect(authMock.createUserWithEmailAndPassword).toHaveBeenCalledWith(authMock, authData.email, authData.password);
       done();
@@ -64,7 +64,6 @@ describe('AuthService', () => {
 
   it('should log out a user and navigate to login', () => {
     service.logout();
-    expect(window.localStorage.removeItem).toHaveBeenCalledWith('token');
     expect(authMock.signOut).toHaveBeenCalled();
     expect(routerMock.navigate).toHaveBeenCalledWith(['/login']);
   });

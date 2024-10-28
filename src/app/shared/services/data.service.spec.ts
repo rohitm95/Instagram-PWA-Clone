@@ -65,7 +65,7 @@ describe('DataService', () => {
     };
     const userId = '1abc';
     service.addPostToDatabase(post, userId).subscribe(() => {
-      expect(firestoreMock.collection).toHaveBeenCalledWith('availablePosts');
+      expect(firestoreMock.collection().get).toHaveBeenCalledWith('availablePosts');
       done();
     });
   });
@@ -73,7 +73,7 @@ describe('DataService', () => {
   it('should fetch user posts', (done) => {
     const userId = 'testUserId';
     service.fetchUserPosts(userId).subscribe(() => {
-      expect(firestoreMock.collection).toHaveBeenCalledWith('availablePosts');
+      expect(firestoreMock.collection().get).toHaveBeenCalledWith('availablePosts');
       expect(firestoreMock.collection().get).toHaveBeenCalled();
       done();
     });
@@ -100,5 +100,45 @@ describe('DataService', () => {
     const result = await service.uploadFile(file);
     expect(storageMock.ref).toHaveBeenCalled();
     expect(result).toBe('mockDownloadURL');
+  });
+
+  it('should handle error in uploadFile', async () => {
+    spyOn(service, 'base64ToBlob').and.throwError('Error');
+
+    try {
+      await service.uploadFile('invalid_base64');
+      fail('uploadFile should have thrown an error');
+    } catch (error) {
+      expect(error).toBe(Error);
+    }
+  });
+
+  it('should convert a valid base64 string to a Blob', () => {
+    const base64String = 'data:image/webp;base64,UklGRh4AAABXRUJQVlA4TBEAAAAvAAAAAAfQ//73v/+BiOh/AAA=';
+    const blob = service.base64ToBlob(base64String);
+
+    expect(blob).toBeInstanceOf(Blob);
+    expect(blob.type).toBe('image/webp');
+  });
+
+  it('should handle a base64 string with a leading data URI', () => {
+    const base64String = 'data:image/webp;base64,UklGRh4AAABXRUJQVlA4TBEAAAAvAAAAAAfQ//73v/+BiOh/AAA=';
+    const blob = service.base64ToBlob(base64String);
+
+    expect(blob).toBeInstanceOf(Blob);
+    expect(blob.type).toBe('image/webp');
+  });
+
+  it('should handle an empty base64 string', () => {
+    const base64String = '';
+    const blob = service.base64ToBlob(base64String);
+
+    expect(blob).toBeInstanceOf(Blob);
+    expect(blob.size).toBe(0);
+  });
+
+  it('should handle an invalid base64 string', () => {
+    const base64String = 'invalid_base64_string';
+    expect(() => service.base64ToBlob(base64String)).toThrowError();
   });
 });

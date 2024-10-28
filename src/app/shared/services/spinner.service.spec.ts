@@ -18,53 +18,37 @@ describe('SpinnerService', () => {
   });
 
   it('should emit true when showSpinner is called with true', (done) => {
-    service.showSpinner$.subscribe((value) => {
-      expect(value).toBeTrue();
-      done();
-    });
-    service.showSpinner(true);
-  });
-
-  it('should hide the spinner when showSpinner(false) is called', (done) => {
-    service.showSpinner$.subscribe((isVisible) => {
-      expect(isVisible).toBeFalse();
-      done();
-    });
-    service.showSpinner(false);
-  });
-
-  it('should emit true when showSpinner is called with true', (done) => {
     service.showSpinner$.pipe(take(1)).subscribe((value) => {
       expect(value).toBeTrue();
       done();
     });
+
     service.showSpinner(true);
   });
 
-  it('should emit false when showSpinner(false) is called', (done) => {
+  it('should emit false when showSpinner is called with false', (done) => {
     service.showSpinner$.pipe(take(1)).subscribe((value) => {
-      expect(value).toBe(false);
+      expect(value).toBeFalse();
       done();
     });
+
     service.showSpinner(false);
   });
 
-  it('should handle multiple calls to showSpinner(true)', (done) => {
+  it('should emit multiple values correctly', (done) => {
+    const expectedValues = [true, false, true];
+    let emittedValues: boolean[] = [];
+
     service.showSpinner$.subscribe((value) => {
-      expect(value).toBeTrue();
-      done();
+      emittedValues.push(value);
+      if (emittedValues.length === expectedValues.length) {
+        expect(emittedValues).toEqual(expectedValues);
+        done();
+      }
     });
-    service.showSpinner(true);
-    service.showSpinner(true);
-  });
 
-  it('should hide the spinner on multiple calls to showSpinner(false)', () => {
-    let spinnerVisible: boolean;
-    service.showSpinner$.subscribe((show) => {
-      spinnerVisible = show;
-    });
+    service.showSpinner(true);
     service.showSpinner(false);
-    service.showSpinner(false);
-    expect(spinnerVisible).toBeFalse();
+    service.showSpinner(true);
   });
 });

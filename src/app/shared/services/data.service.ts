@@ -83,13 +83,13 @@ export class DataService {
     return fileURL;
   }
 
-  private base64ToBlob(base64) {
+  base64ToBlob(base64) {
     const byteCharacters = atob(base64.split(',')[1]);
     const byteNumbers = new Array(byteCharacters.length);
     for (let i = 0; i < byteCharacters.length; i++) {
       byteNumbers[i] = byteCharacters.charCodeAt(i);
     }
     const byteArray = new Uint8Array(byteNumbers);
-    return new Blob([byteArray], { type: 'image/jpeg' });
+    return new Blob([byteArray], { type: 'image/webp' });
   }
 }

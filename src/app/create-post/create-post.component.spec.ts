@@ -128,12 +128,13 @@ describe('CreatePostComponent', () => {
   });
 
   it('should handle error on create post', (done) => {
+    let errorMessage = new Error('Error');
     dataServiceMock.addPostToDatabase.and.returnValue(throwError(() => new Error('Error')));
 
     component.createPost();
 
     setTimeout(() => {
-      expect(snackbarServiceMock.showSnackbar).toHaveBeenCalledWith('Error', null, 3000);
+      expect(snackbarServiceMock.showSnackbar).toHaveBeenCalledWith(errorMessage, null, 3000);
       done();
     }, 0);
   });
