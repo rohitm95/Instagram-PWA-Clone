@@ -1,17 +1,24 @@
 import { inject, Injectable } from '@angular/core';
-import { Auth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, signOut } from '@angular/fire/auth';
+import {
+  Auth,
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+} from '@angular/fire/auth';
 import { scheduled, asyncScheduler } from 'rxjs';
 import { AuthData } from '../auth-data.model';
 import { Router } from '@angular/router';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private auth: Auth = inject(Auth);
   router = inject(Router);
   // provider = new GoogleAuthProvider();
-  constructor() { }
+  constructor() {}
 
   registerUser(authData: AuthData) {
     return scheduled(

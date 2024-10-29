@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { CanActivateFn } from '@angular/router';
+import { CanActivateFn, Router } from '@angular/router';
 
 import { authGuard } from './auth.guard';
 
@@ -12,14 +12,12 @@ describe('authGuard', () => {
     routerMock = {
       navigate: jasmine.createSpy(),
     };
-    TestBed.configureTestingModule({});
-    // Mocking the Router injection
-    spyOn(window.localStorage, 'getItem').and.callFake((key: string) => {
-      if (key === 'token') {
-        return null; // Default to no token
-      }
-      return null;
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: Router, useValue: routerMock },
+      ]
     });
+    // Mocking the Router injection
   });
 
   it('should be created', () => {
