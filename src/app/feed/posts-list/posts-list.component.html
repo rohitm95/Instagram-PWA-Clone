@@ -23,7 +23,7 @@
               <mat-card class="post-card">
                 <mat-card-header>
                   <div class="profile">
-                    <img [ngSrc]="'images/sf-golden-bridge.webp'" height="40" width="40" alt="Profile Pic" />
+                    <img src="'images/sf-golden-bridge.webp'" height="40" width="40" alt="Profile Pic" />
                     <div>
                       <div>{{userDetails.displayName}}</div>
                       <button class="follow-btn">Follow</button>
@@ -34,7 +34,7 @@
                   <img
                     class="post-image"
                     #postImage
-                    [ngSrc]="post.image"
+                    [src]="post.image"
                     (error)="onImageError()"
                     alt="Post Pic"
                     width="260"

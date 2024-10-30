@@ -5,7 +5,12 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -54,7 +59,7 @@ export class CreatePostComponent implements OnInit {
   ngOnInit(): void {
     if (navigator.onLine) {
       this.postForm = this.fb.group({
-        title: [''],
+        title: ['', [Validators.required]],
         location: [''],
         image: [''],
       });
@@ -101,10 +106,10 @@ export class CreatePostComponent implements OnInit {
 
   flipCamera() {
     this.front = !this.front;
-    document.getElementById('canvas').style.display = 'none';
-    document.getElementById('player').style.display = 'block';
     navigator.mediaDevices
-      .getUserMedia({ video: { facingMode: this.front ? "user" : "environment" } })
+      .getUserMedia({
+        video: { facingMode: this.front ? 'user' : 'environment' },
+      })
       .then((stream) => {
         document.getElementById('pick-image').style.display = 'none';
         this.video.nativeElement.srcObject = stream;
@@ -176,7 +181,7 @@ export class CreatePostComponent implements OnInit {
           },
           error: (err) => {
             this.snackbarService.showSnackbar(err, null, 3000);
-          }
+          },
         });
     });
   }
