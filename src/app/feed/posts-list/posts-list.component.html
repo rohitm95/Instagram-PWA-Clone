@@ -21,14 +21,24 @@
           @for (post of data; track post.image) {
             <div class="post">
               <mat-card class="post-card">
-                <mat-card-header>
+                <mat-card-header class="post-card-header">
                   <div class="profile">
-                    <img src="'images/sf-golden-bridge.webp'" height="40" width="40" alt="Profile Pic" />
+                    <img [ngSrc]="'images/sf-golden-bridge.webp'" height="40" width="40" alt="Profile Pic" />
                     <div>
                       <div>{{userDetails.displayName}}</div>
                       <button class="follow-btn">Follow</button>
                     </div>
                   </div>
+                  <div class="spacer"></div>
+                  <div class="more-icon">
+                    <button class="more-button" mat-button [matMenuTriggerFor]="menu">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+                  </div>
+                  <mat-menu #menu="matMenu">
+                    <button mat-menu-item>Edit Post</button>
+                    <button mat-menu-item>Delete Post</button>
+                  </mat-menu>
                 </mat-card-header>
                 <mat-card-content class="text-center">
                   <img

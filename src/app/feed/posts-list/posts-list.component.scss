@@ -23,6 +23,23 @@
   margin-bottom: 10px;
 }
 
+.post-card-header {
+  justify-content: space-between;
+
+  .spacer {
+    width: 105px;
+  }
+
+  .more-icon {
+    margin-top: 10px;
+
+    .more-button {
+      padding: 0;
+      justify-content: end;
+    }
+  }
+}
+
 .post-image {
   max-width: 260px;
 }

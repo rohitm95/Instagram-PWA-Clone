@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgOptimizedImage } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -15,7 +15,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterModule } from '@angular/router';
 import { Auth, authState } from '@angular/fire/auth';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-posts-list',
@@ -26,7 +26,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatIconModule,
     MatButtonModule,
     RouterModule,
-    MatProgressSpinnerModule,
+    NgOptimizedImage,
+    MatMenuModule,
   ],
   templateUrl: './posts-list.component.html',
   styleUrl: './posts-list.component.scss',

@@ -7,9 +7,9 @@
       <button id="capture-button" mat-raised-button color="accent" (click)="captureImage()">
         Capture
       </button>
-      @if (!imageData) {
+      <!-- @if (!imageData) {
         <button mat-raised-button id="flip-camera" color="primary" (click)="flipCamera()">Flip camera</button>
-      }
+      } -->
       @if (imageData) {
         <button mat-raised-button id="recapture-button" color="primary" (click)="reCapture()">Capture Again</button>
       }
