@@ -80,7 +80,7 @@ export class PostsListComponent implements AfterViewInit {
 
   onImageError() {
     this.postImages.forEach((image) => {
-      image.nativeElement.src = 'images/broken-image.png';
+      image.nativeElement.src = 'images/broken-image.webp';
     });
   }
 

@@ -37,7 +37,7 @@
           "/firebase-messaging-sw.js",
           "/*.css",
           "/*.js",
-          "images/broken-image.png"
+          "images/broken-image.webp"
         ]
       }
     },

@@ -93,8 +93,8 @@ describe('PostsListComponent', () => {
 
     component.onImageError();
 
-    expect(imageRef1.nativeElement.src).toContain('images/broken-image.png');
-    expect(imageRef2.nativeElement.src).toContain('images/broken-image.png');
+    expect(imageRef1.nativeElement.src).toContain('images/broken-image.webp');
+    expect(imageRef2.nativeElement.src).toContain('images/broken-image.webp');
   });
 
   it('should navigate to create post on addNewPost', () => {
@@ -104,8 +104,8 @@ describe('PostsListComponent', () => {
 
   it('should fetch all posts on ngAfterViewInit', () => {
     const mockPosts = [
-      { id: '1', data: () => ({ title: 'Post 1', location: 'Location 1', date: '2023-01-01', image: 'image1.png' }) },
-      { id: '2', data: () => ({ title: 'Post 2', location: 'Location 2', date: '2023-01-02', image: 'image2.png' }) },
+      { id: '1', data: () => ({ title: 'Post 1', location: 'Location 1', date: '2023-01-01', image: 'image1.webp' }) },
+      { id: '2', data: () => ({ title: 'Post 2', location: 'Location 2', date: '2023-01-02', image: 'image2.webp' }) },
     ];
 
     dataServiceMock.fetchUserPosts.and.returnValue(of({ docs: mockPosts }));
