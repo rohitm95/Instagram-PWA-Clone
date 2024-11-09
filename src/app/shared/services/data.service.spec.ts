@@ -96,7 +96,7 @@ describe('DataService', () => {
   });
 
   it('should upload a file and return the download URL', async () => {
-    const file = new Blob(['test'], { type: 'image/jpeg' });
+    const file = new Blob(['test'], { type: 'image/webp' });
     const result = await service.uploadFile(file);
     expect(storageMock.ref).toHaveBeenCalled();
     expect(result).toBe('mockDownloadURL');
