@@ -7,11 +7,10 @@ import { SpinnerService } from './shared/services/spinner.service';
 import { AsyncPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, MatProgressSpinnerModule, AsyncPipe],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
+    selector: 'app-root',
+    imports: [RouterOutlet, MatProgressSpinnerModule, AsyncPipe],
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.scss'
 })
 export class AppComponent {
   title = 'PWA-gram';

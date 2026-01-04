@@ -8,17 +8,16 @@ import { AuthService } from '../services/auth.service';
 import { AsyncPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-header',
-  standalone: true,
-  imports: [
-    MatToolbarModule,
-    MatIconModule,
-    MatButtonModule,
-    RouterModule,
-    AsyncPipe,
-  ],
-  templateUrl: './header.component.html',
-  styleUrl: './header.component.scss',
+    selector: 'app-header',
+    imports: [
+        MatToolbarModule,
+        MatIconModule,
+        MatButtonModule,
+        RouterModule,
+        AsyncPipe,
+    ],
+    templateUrl: './header.component.html',
+    styleUrl: './header.component.scss'
 })
 export class HeaderComponent {
   @Output() sidenav: EventEmitter<any> = new EventEmitter();

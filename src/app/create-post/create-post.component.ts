@@ -23,18 +23,17 @@ import { SpinnerService } from '../shared/services/spinner.service';
 import { Auth, authState } from '@angular/fire/auth';
 
 @Component({
-  selector: 'app-create-post',
-  templateUrl: 'create-post.component.html',
-  styleUrl: 'create-post.component.scss',
-  standalone: true,
-  imports: [
-    MatFormFieldModule,
-    MatInputModule,
-    ReactiveFormsModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    RouterModule,
-  ],
+    selector: 'app-create-post',
+    templateUrl: 'create-post.component.html',
+    styleUrl: 'create-post.component.scss',
+    imports: [
+        MatFormFieldModule,
+        MatInputModule,
+        ReactiveFormsModule,
+        MatButtonModule,
+        MatProgressSpinnerModule,
+        RouterModule,
+    ]
 })
 export class CreatePostComponent implements OnInit, AfterViewInit {
   @ViewChild('video') video: ElementRef;

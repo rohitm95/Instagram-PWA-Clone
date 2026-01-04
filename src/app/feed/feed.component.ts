@@ -9,17 +9,16 @@ import { MessagingService } from '../shared/services/messaging.service';
 
 
 @Component({
-  selector: 'app-feed',
-  standalone: true,
-  imports: [
-    HeaderComponent,
-    MatSidenavModule,
-    RouterModule,
-    MatListModule,
-    MatButtonModule,
-  ],
-  templateUrl: './feed.component.html',
-  styleUrl: './feed.component.scss',
+    selector: 'app-feed',
+    imports: [
+        HeaderComponent,
+        MatSidenavModule,
+        RouterModule,
+        MatListModule,
+        MatButtonModule,
+    ],
+    templateUrl: './feed.component.html',
+    styleUrl: './feed.component.scss'
 })
 export class FeedComponent implements OnInit {
   opened = false;

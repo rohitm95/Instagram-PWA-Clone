@@ -18,19 +18,18 @@ import { Auth, authState } from '@angular/fire/auth';
 import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
-  selector: 'app-posts-list',
-  standalone: true,
-  imports: [
-    MatCardModule,
-    DatePipe,
-    MatIconModule,
-    MatButtonModule,
-    RouterModule,
-    NgOptimizedImage,
-    MatMenuModule,
-  ],
-  templateUrl: './posts-list.component.html',
-  styleUrl: './posts-list.component.scss',
+    selector: 'app-posts-list',
+    imports: [
+        MatCardModule,
+        DatePipe,
+        MatIconModule,
+        MatButtonModule,
+        RouterModule,
+        NgOptimizedImage,
+        MatMenuModule,
+    ],
+    templateUrl: './posts-list.component.html',
+    styleUrl: './posts-list.component.scss'
 })
 export class PostsListComponent implements AfterViewInit {
   @ViewChildren('postImage') postImages: QueryList<

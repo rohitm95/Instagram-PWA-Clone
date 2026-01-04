@@ -18,18 +18,17 @@ import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 @Component({
-  selector: 'app-signup',
-  standalone: true,
-  imports: [
-    MatInputModule,
-    MatFormFieldModule,
-    MatButtonModule,
-    MatIconModule,
-    ReactiveFormsModule,
-    MatToolbarModule,
-  ],
-  templateUrl: './signup.component.html',
-  styleUrl: './signup.component.scss',
+    selector: 'app-signup',
+    imports: [
+        MatInputModule,
+        MatFormFieldModule,
+        MatButtonModule,
+        MatIconModule,
+        ReactiveFormsModule,
+        MatToolbarModule,
+    ],
+    templateUrl: './signup.component.html',
+    styleUrl: './signup.component.scss'
 })
 export class SignupComponent {
   userSignupForm: FormGroup;

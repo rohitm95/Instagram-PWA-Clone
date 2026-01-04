@@ -17,18 +17,17 @@ import { SpinnerService } from '../shared/services/spinner.service';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 @Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    ReactiveFormsModule,
-    MatToolbarModule,
-  ],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.scss',
+    selector: 'app-login',
+    imports: [
+        MatButtonModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        ReactiveFormsModule,
+        MatToolbarModule,
+    ],
+    templateUrl: './login.component.html',
+    styleUrl: './login.component.scss'
 })
 export class LoginComponent implements OnInit {
   userLoginForm: FormGroup;
