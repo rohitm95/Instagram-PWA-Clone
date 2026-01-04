@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 
 import { CreatePostComponent } from './create-post.component';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
@@ -66,8 +66,23 @@ describe('CreatePostComponent', () => {
 
     fixture = TestBed.createComponent(CreatePostComponent);
     component = fixture.componentInstance;
-    component.video = { nativeElement: { srcObject: null } };
+    component.video = { nativeElement: { srcObject: null, style: { display: '' } } } as any;
+    component.canvas = { nativeElement: { style: { display: '' } } } as any;
+    component.pickImageEl = { nativeElement: { style: { display: '' } } } as any;
+    component.captureImageEl = { nativeElement: { style: { display: '' } } } as any;
+    component.captureImageEl = { nativeElement: { style: { display: '' } } } as any;
     component.imageData = null;
+
+    if (!navigator.mediaDevices) {
+      (navigator as any).mediaDevices = {};
+    }
+    // Ensure getUserMedia exists to be spied on, if it doesn't already
+    if (!navigator.mediaDevices.getUserMedia) {
+      (navigator.mediaDevices as any).getUserMedia = () => Promise.resolve({});
+    }
+    
+    spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.resolve({} as MediaStream));
+
     fixture.detectChanges();
   });
 
@@ -96,6 +111,12 @@ describe('CreatePostComponent', () => {
 
     expect(component.selectedFile).toEqual(file);
     expect(component.imageData).toEqual(file);
+  });
+
+  it('should handle no file selection', () => {
+    const event = { target: { files: [] } };
+    component.onFileSelected(event);
+    expect(component.selectedFile).toBeNull();
   });
 
   it('should re-capture image', () => {
@@ -137,5 +158,75 @@ describe('CreatePostComponent', () => {
       expect(snackbarServiceMock.showSnackbar).toHaveBeenCalledWith(errorMessage, null, 3000);
       done();
     }, 0);
+  });
+
+  it('should show snackbar if user is offline on init', () => {
+    spyOnProperty(navigator, 'onLine').and.returnValue(false);
+    component.ngOnInit();
+    expect(snackbarServiceMock.showSnackbar).toHaveBeenCalledWith('You are offline!', null, 3000);
+  });
+
+  it('should initialize camera successfully', fakeAsync(() => {
+    const mockStream = { id: 'testStream' } as any;
+    (navigator.mediaDevices.getUserMedia as jasmine.Spy).and.returnValue(Promise.resolve(mockStream));
+
+    component.initCamera();
+    tick(); // Process the async/await promise resolution
+
+    expect(component.canvas.nativeElement.style.display).toBe('none');
+    expect(component.video.nativeElement.style.display).toBe('block');
+  }));
+
+  it('should handle camera access error', fakeAsync(() => {
+    const mockError = new Error('Camera not found');
+    (navigator.mediaDevices.getUserMedia as jasmine.Spy).and.returnValue(Promise.reject(mockError));
+    spyOn(console, 'error');
+
+    component.initCamera();
+    tick(); // Process the async/await promise rejection
+
+    expect(component.canvas.nativeElement.style.display).toBe('none');
+    expect(component.video.nativeElement.style.display).toBe('block');
+    expect(component.pickImageEl.nativeElement.style.display).toBe('block');
+    expect(component.captureImageEl.nativeElement.style.display).toBe('none');
+    expect(console.error).toHaveBeenCalledWith('Error accessing camera:', mockError);
+  }));
+
+  it('should capture image', () => {
+    const mockContext = {
+      drawImage: jasmine.createSpy('drawImage'),
+    };
+    const mockCanvas = {
+      getContext: jasmine.createSpy('getContext').and.returnValue(mockContext),
+      width: 0,
+      height: 0,
+      toDataURL: jasmine.createSpy('toDataURL').and.returnValue('mockImageData'),
+      style: { display: 'none' },
+    };
+    const mockTrack = { stop: jasmine.createSpy('stop') };
+    const mockVideo = {
+      videoWidth: 100,
+      videoHeight: 100,
+      style: { display: 'block' },
+      srcObject: {
+        getVideoTracks: jasmine.createSpy('getVideoTracks').and.returnValue([mockTrack]),
+      },
+    };
+
+    component.canvas = { nativeElement: mockCanvas } as any;
+    component.video = { nativeElement: mockVideo } as any;
+
+    component.captureImage();
+
+    expect(mockCanvas.getContext).toHaveBeenCalledWith('2d');
+    expect(mockCanvas.width).toBe(100);
+    expect(mockCanvas.height).toBe(100);
+    expect(mockContext.drawImage).toHaveBeenCalledWith(mockVideo, 0, 0);
+    expect(mockVideo.style.display).toBe('none');
+    expect(mockCanvas.style.display).toBe('block');
+    expect(mockVideo.srcObject.getVideoTracks).toHaveBeenCalled();
+    expect(mockTrack.stop).toHaveBeenCalled();
+    expect(mockCanvas.toDataURL).toHaveBeenCalledWith('image/webp');
+    expect(component.imageData).toBe('mockImageData');
   });
 });

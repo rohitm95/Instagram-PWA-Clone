@@ -55,6 +55,10 @@ describe('PostsListComponent', () => {
 
     fixture = TestBed.createComponent(PostsListComponent);
     component = fixture.componentInstance;
+
+    // Override the authState$ directly on the component instance
+    Object.defineProperty(component, 'authState$', { value: of({ uid: 'testUserId' }) });
+
     component.postImages = new QueryList<ElementRef>();
     fixture.detectChanges();
   });
@@ -70,21 +74,20 @@ describe('PostsListComponent', () => {
   });
 
   it('should show snackbar on error fetching posts', (done) => {
-    
+
     // Mock the fetchUserPosts to return an error
     dataServiceMock.fetchUserPosts.and.returnValue(throwError(() => new Error('Error')));
-  
+
     // Call the method that triggers fetching posts
     component.getAllPosts();
-  
+
     // Check if showSnackbar was called with the expected arguments
     setTimeout(() => {
       expect(snackbarServiceMock.showSnackbar).toHaveBeenCalledWith('Error fetching posts', null, 3000);
       done();
     }, 0);
-    // expect(snackbarServiceMock.showSnackbar).toHaveBeenCalledWith('Error fetching posts', null, 3000);
   });
-  
+
 
   it('should set broken image on image error', () => {
     const imageRef1 = new ElementRef(document.createElement('img'));
@@ -113,8 +116,7 @@ describe('PostsListComponent', () => {
     component.ngAfterViewInit();
 
     expect(dataServiceMock.fetchUserPosts).toHaveBeenCalledWith('testUserId');
-    expect(component.data.length).toBe(0);
-    expect(component.data).toEqual([]);
+    expect(component.data.length).toBe(2);
   });
 
   it('should show snackbar on error fetching posts', (done) => {
@@ -125,13 +127,11 @@ describe('PostsListComponent', () => {
       expect(snackbarServiceMock.showSnackbar).toHaveBeenCalledWith('Error fetching posts', null, 3000);
       done();
     }, 0);
-    // expect(snackbarServiceMock.showSnackbar).toHaveBeenCalledWith('Error fetching posts', null, 3000);
   });
 
   it('should handle image error', () => {
     const mockImageElement = { nativeElement: { src: '' } };
     component.postImages = new QueryList<ElementRef<HTMLImageElement>>();
-    // component.postImages.reset([mockImageElement]);
 
     component.onImageError();
 

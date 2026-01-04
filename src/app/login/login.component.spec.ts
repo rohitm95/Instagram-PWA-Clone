@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { LoginComponent } from './login.component';
 import { Router } from '@angular/router';
@@ -7,7 +7,7 @@ import { provideAuth, getAuth } from '@angular/fire/auth';
 import { AuthService } from '../shared/services/auth.service';
 import { SnackbarService } from '../shared/services/snackbar.service';
 import { SpinnerService } from '../shared/services/spinner.service';
-import { throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -64,25 +64,26 @@ describe('LoginComponent', () => {
     expect(component.userLoginForm.contains('password')).toBeTrue();
   });
 
-  // it('should make login call with valid credentials', () => {
-  //   component.ngOnInit();
-  //   const mockResponse = { user: { getIdToken: () => Promise.resolve('mockToken') } };
-  //   authSpy.login.and.returnValue(of(mockResponse));
+  it('should make login call with valid credentials', fakeAsync(() => {
+    component.ngOnInit();
+    const mockResponse = { user: { getIdToken: () => Promise.resolve('mockToken') } };
+    authSpy.login.and.returnValue(of(mockResponse as any));
 
-  //   component.login(component.userLoginForm);
-    
-  //   expect(spinnerSpy.showSpinner).toHaveBeenCalledWith(true);
-  //   expect(authSpy.login).toHaveBeenCalledWith({
-  //     email: '',
-  //     password: '',
-  //   });
-  //   expect(routerSpy.navigate).toHaveBeenCalledWith(['/posts']);
-  //   expect(window.localStorage.getItem('token')).toBe(JSON.stringify('mockToken'));
-  // });
+    component.login(component.userLoginForm);
+    tick();
+
+    expect(spinnerSpy.showSpinner).toHaveBeenCalledWith(true);
+    expect(authSpy.login).toHaveBeenCalledWith({
+      email: '',
+      password: '',
+    });
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/posts']);
+    expect(globalThis.localStorage.getItem('token')).toBe(JSON.stringify('mockToken'));
+  }));
 
   it('should handle login error with invalid credentials', () => {
     component.ngOnInit();
-    authSpy.login.and.returnValue(throwError(() => new Error('Firebase: Error (auth/invalid-login-credentials).')));
+    authSpy.login.and.returnValue(throwError(() => new Error('Firebase: Error (auth/invalid-credential).')));
 
     component.login(component.userLoginForm);
 

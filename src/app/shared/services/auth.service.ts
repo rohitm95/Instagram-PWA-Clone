@@ -1,46 +1,34 @@
 import { inject, Injectable } from '@angular/core';
-import {
-  Auth,
-  createUserWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut,
-} from '@angular/fire/auth';
 import { scheduled, asyncScheduler } from 'rxjs';
 import { AuthData } from '../auth-data.model';
 import { Router } from '@angular/router';
+import { FirebaseAuthService } from './firebase-auth.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private auth: Auth = inject(Auth);
+  private readonly firebaseAuthService = inject(FirebaseAuthService);
   router = inject(Router);
-  // provider = new GoogleAuthProvider();
   constructor() {}
 
   registerUser(authData: AuthData) {
     return scheduled(
-      createUserWithEmailAndPassword(
-        this.auth,
-        authData.email,
-        authData.password
-      ),
+      this.firebaseAuthService.createUser(authData.email, authData.password),
       asyncScheduler
     );
   }
 
   login(authData: AuthData) {
     return scheduled(
-      signInWithEmailAndPassword(this.auth, authData.email, authData.password),
+      this.firebaseAuthService.signIn(authData.email, authData.password),
       asyncScheduler
     );
   }
 
   logout() {
-    window.localStorage.removeItem('token');
-    signOut(this.auth);
+    globalThis.localStorage.removeItem('token');
+    this.firebaseAuthService.signOut();
     this.router.navigate(['/login']);
   }
 

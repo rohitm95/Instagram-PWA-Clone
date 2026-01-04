@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
   ReactiveFormsModule,
   FormGroup,
@@ -30,7 +30,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   userLoginForm: FormGroup;
   hide = true;
   authService = inject(AuthService);
@@ -64,13 +64,13 @@ export class LoginComponent {
           const user = response.user;
           user.getIdToken().then((token) => {
             this.router.navigate(['/posts']);
-            window.localStorage.setItem('token', JSON.stringify(token));
+            globalThis.localStorage.setItem('token', JSON.stringify(token));
           });
         },
         error: (error) => {
           if (
             error.message ===
-            'Firebase: Error (auth/invalid-login-credentials).'
+            'Firebase: Error (auth/invalid-credential).'
           ) {
             this.spinnerService.showSpinner(false);
             this.snackbarService.showSnackbar(

@@ -1,11 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { RouterModule } from '@angular/router';
 import { HeaderComponent } from '../shared/header/header.component';
 import { AuthService } from '../shared/services/auth.service';
-import { Messaging, getToken, onMessage } from '@angular/fire/messaging';
+import { MessagingService } from '../shared/services/messaging.service';
+
 
 @Component({
   selector: 'app-feed',
@@ -20,11 +21,11 @@ import { Messaging, getToken, onMessage } from '@angular/fire/messaging';
   templateUrl: './feed.component.html',
   styleUrl: './feed.component.scss',
 })
-export class FeedComponent {
+export class FeedComponent implements OnInit {
   opened = false;
 
-  private readonly _messaging = inject(Messaging);
   authService = inject(AuthService);
+  messagingService = inject(MessagingService);
 
   ngOnInit(): void {
     this._getDeviceToken();
@@ -36,22 +37,13 @@ export class FeedComponent {
   }
 
   private _getDeviceToken(): void {
-    getToken(this._messaging, {
-      vapidKey:
-        'BFi_Z957BLCN1VjtgklwY9trxV3hzQrSSNnrgMxU2zpqWFxLjzs6v2vPu2qWRQTbdZPA8-MxISQK253bZxkahos',
-    })
-      .then((token) => {
-        console.log(token);
-        // save the token in the server, or do whathever you want
-      })
-      .catch((error) => console.log('Token error', error));
+    this.messagingService.getDeviceToken().subscribe({
+      next: (token) => console.log(token),
+      error: (error) => console.log('Token error', error),
+    });
   }
 
   private _onMessage(): void {
-    onMessage(this._messaging, {
-      next: (payload) => console.log('Message', payload),
-      error: (error) => console.log('Message error', error),
-      complete: () => console.log('Done listening to messages'),
-    });
+    this.messagingService.listenForMessages();
   }
 }

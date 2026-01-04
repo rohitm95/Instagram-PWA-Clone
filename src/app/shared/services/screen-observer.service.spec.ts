@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { take } from 'rxjs';
 import { ScreenObserverService } from './screen-observer-service';
 import { BreakpointState } from '@angular/cdk/layout';
 
@@ -24,18 +25,16 @@ describe('ScreenObserverService', () => {
   });
 
   it('should emit the initial screen size state when observe is called', (done) => {
-    service.observe().subscribe((state: BreakpointState) => {
+    service.observe().pipe(take(1)).subscribe((state: BreakpointState) => {
       expect(state).toBeDefined();
       expect(state.matches).toBe(window.innerWidth < 768);
       done();
     });
-    service.observe()
   });
 
   it('should update the screen size state on window resize', () => {
-    const initialSize: BreakpointState = service['getCurrentScreenSize']();
     window.innerWidth = 500;
-    window.dispatchEvent(new Event('resize'));
+    globalThis.dispatchEvent(new Event('resize'));
     const updatedSize: BreakpointState = service['getCurrentScreenSize']();
     expect(updatedSize.matches).toBeTrue();
     expect(updatedSize.breakpoints['sm']).toBeFalse();
@@ -43,9 +42,8 @@ describe('ScreenObserverService', () => {
   });
 
   it('should update the screen size state on window resize', () => {
-    const initialSize: BreakpointState = service['getCurrentScreenSize']();
     window.innerWidth = 800;
-    window.dispatchEvent(new Event('resize'));
+    globalThis.dispatchEvent(new Event('resize'));
     const updatedSize: BreakpointState = service['getCurrentScreenSize']();
     expect(updatedSize.matches).toBeFalse();
     expect(updatedSize.breakpoints['md']).toBeTrue();

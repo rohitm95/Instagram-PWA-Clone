@@ -4,6 +4,7 @@ import {
   inject,
   OnInit,
   ViewChild,
+  AfterViewInit,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -35,10 +36,12 @@ import { Auth, authState } from '@angular/fire/auth';
     RouterModule,
   ],
 })
-export class CreatePostComponent implements OnInit {
+export class CreatePostComponent implements OnInit, AfterViewInit {
   @ViewChild('video') video: ElementRef;
   @ViewChild('canvas') canvas: ElementRef<HTMLCanvasElement>;
   @ViewChild('locationLoader') locationLoader: ElementRef;
+  @ViewChild('pickImageEl') pickImageEl: ElementRef;
+  @ViewChild('captureImageEl') captureImageEl: ElementRef;
 
   context: CanvasRenderingContext2D;
 
@@ -64,9 +67,6 @@ export class CreatePostComponent implements OnInit {
         image: [''],
       });
 
-      document.getElementById('pick-image').style.display = 'none';
-
-      this.initCamera();
       this.getLocation();
       this.authState$.subscribe((user) => {
         this.userId = user.uid;
@@ -76,57 +76,64 @@ export class CreatePostComponent implements OnInit {
     }
   }
 
+  ngAfterViewInit(): void {
+    if (navigator.onLine) {
+      this.pickImageEl.nativeElement.style.display = 'none';
+      this.initCamera();
+    }
+  }
+
   onFileSelected(event: any): void {
     this.selectedFile = event.target.files[0] ?? null;
-    this.imageData = this.selectedFile;
-    const reader = new FileReader();
+    if (this.selectedFile) {
+      this.imageData = this.selectedFile;
+      const reader = new FileReader();
 
-    reader.onload = () => {
-      this.imageURL = reader.result;
-    };
+      reader.onload = () => {
+        this.imageURL = reader.result;
+      };
 
-    reader.readAsDataURL(this.selectedFile);
+      reader.readAsDataURL(this.selectedFile);
+    }
   }
 
-  initCamera() {
-    document.getElementById('canvas').style.display = 'none';
-    document.getElementById('player').style.display = 'block';
-    navigator.mediaDevices
-      .getUserMedia({ video: { facingMode: 'environment' } })
-      .then((stream) => {
-        document.getElementById('pick-image').style.display = 'none';
-        this.video.nativeElement.srcObject = stream;
-      })
-      .catch((error) => {
-        document.getElementById('pick-image').style.display = 'block';
-        document.getElementById('capture-image').style.display = 'none';
-        console.error('Error accessing camera:', error);
+  async initCamera() {
+    this.canvas.nativeElement.style.display = 'none';
+    this.video.nativeElement.style.display = 'block';
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
       });
+      this.pickImageEl.nativeElement.style.display = 'none';
+      this.video.nativeElement.srcObject = stream;
+    } catch (error) {
+      this.pickImageEl.nativeElement.style.display = 'block';
+      this.captureImageEl.nativeElement.style.display = 'none';
+      console.error('Error accessing camera:', error);
+    }
   }
 
-  flipCamera() {
-    this.front = !this.front;
-    navigator.mediaDevices
-      .getUserMedia({
-        video: { facingMode: this.front ? 'user' : 'environment' },
-      })
-      .then((stream) => {
-        document.getElementById('pick-image').style.display = 'none';
-        this.video.nativeElement.srcObject = stream;
-      })
-      .catch((error) => {
-        document.getElementById('pick-image').style.display = 'block';
-        document.getElementById('capture-image').style.display = 'none';
-        console.error('Error accessing camera:', error);
-      });
-  }
+  // flipCamera() {
+  //   this.front = !this.front;
+  //   navigator.mediaDevices
+  //     .getUserMedia({
+  //       video: { facingMode: this.front ? 'user' : 'environment' },
+  //     })
+  //     .then((stream) => {
+  //       this.pickImageEl.nativeElement.style.display = 'none';
+  //       this.video.nativeElement.srcObject = stream;
+  //     })
+  //     .catch((error) => {
+  //       this.pickImageEl.nativeElement.style.display = 'block';
+  //       this.captureImageEl.nativeElement.style.display = 'none';
+  //       console.error('Error accessing camera:', error);
+  //     });
+  // }
 
   getLocation() {
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        // document.getElementById('location-loader').style.display = 'none';
-        // document.getElementById('location-button').style.display =
-        //   'inline-flex';
         let fetchedLocation = {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
@@ -135,10 +142,6 @@ export class CreatePostComponent implements OnInit {
       },
       (error) => {
         console.log(error);
-        // document.getElementById('location-loader').style.display = 'none';
-        // document.getElementById('location-button').style.display =
-        //   'inline-flex';
-        // alert("Couldn't fetch location, please enter manually!");
       },
       { timeout: 7000 }
     );
@@ -154,8 +157,8 @@ export class CreatePostComponent implements OnInit {
     this.canvas.nativeElement.width = this.video.nativeElement.videoWidth;
     this.canvas.nativeElement.height = this.video.nativeElement.videoHeight;
     this.context.drawImage(this.video.nativeElement, 0, 0);
-    document.getElementById('player').style.display = 'none';
-    document.getElementById('canvas').style.display = 'block';
+    this.video.nativeElement.style.display = 'none';
+    this.canvas.nativeElement.style.display = 'block';
     this.video.nativeElement.srcObject.getVideoTracks().forEach((track) => {
       track.stop();
     });

@@ -26,7 +26,7 @@ describe('authGuard', () => {
 
   it('should allow access if token exists', () => {
     // Simulate a token being present in localStorage
-    spyOn(window.localStorage, 'getItem').and.returnValue('mockToken');
+    spyOn(globalThis.localStorage, 'getItem').and.returnValue('mockToken');
 
     const result = TestBed.runInInjectionContext(() => {
       return authGuard(null, null);
@@ -37,11 +37,15 @@ describe('authGuard', () => {
   });
 
   it('should redirect to login if token does not exist', () => {
+    spyOn(globalThis.localStorage, 'getItem').and.returnValue(null);
+    routerMock.navigate.and.returnValue(Promise.resolve(true));
+
     const result = TestBed.runInInjectionContext(() => {
       return authGuard(null, null);
     });
 
-    expect(result).toBeUndefined(); // Since navigate returns a Promise
+    // result is a Promise<boolean>
+    expect(result).toBeInstanceOf(Promise);
     expect(routerMock.navigate).toHaveBeenCalledWith(['/login']);
   });
 });

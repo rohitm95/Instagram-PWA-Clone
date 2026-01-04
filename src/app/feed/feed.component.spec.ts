@@ -1,32 +1,34 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 
 import { FeedComponent } from './feed.component';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthService } from '../shared/services/auth.service';
-import { getMessaging, getToken, Messaging, onMessage, provideMessaging } from '@angular/fire/messaging';
-import { from } from 'rxjs';
+import { MessagingService } from '../shared/services/messaging.service';
+import { from, of, throwError } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 
 describe('FeedComponent', () => {
   let component: FeedComponent;
   let fixture: ComponentFixture<FeedComponent>;
   let authServiceMock: any;
-  let messagingMock: any;
+  let messagingServiceMock: any;
 
   beforeEach(async () => {
     authServiceMock = {
       logout: jasmine.createSpy(),
     };
 
-    messagingMock = {
-      // Mocking the methods we will use
+    messagingServiceMock = {
+      getDeviceToken: jasmine.createSpy('getDeviceToken').and.returnValue(of('mockToken')),
+      listenForMessages: jasmine.createSpy('listenForMessages'),
     };
+
     const activatedRouteMock = {
-      params: from([{ id: '123' }]), // Mocking route parameters
-      // You can add other properties like 'data', 'queryParams', etc. as needed
+      params: from([{ id: '123' }]),
     };
+
     await TestBed.configureTestingModule({
       imports: [FeedComponent, BrowserAnimationsModule],
       providers: [
@@ -41,17 +43,16 @@ describe('FeedComponent', () => {
             measurementId: 'G-GMS3Q333WQ',
           })
         ),
-        // await isSupported()
         provideAuth(() => getAuth()),
-        provideMessaging(() => getMessaging()),
+        { provide: MessagingService, useValue: messagingServiceMock },
         { provide: AuthService, useValue: authServiceMock },
         {
           provide: ActivatedRoute,
-          useValue: activatedRouteMock, // Provide the mock
+          useValue: activatedRouteMock,
         },
       ]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(FeedComponent);
     component = fixture.componentInstance;
@@ -63,55 +64,30 @@ describe('FeedComponent', () => {
   });
 
   it('should initialize and get device token on ngOnInit', () => {
-    const getTokenSpy = spyOn(messagingMock, 'getToken').and.returnValue(Promise.resolve('mockToken'));
-    const onMessageSpy = spyOn(messagingMock, 'onMessage').and.callFake((_, { next }) => {
-      next({ message: 'Test message' });
-    });
-
-    component.ngOnInit();
-
-    expect(getTokenSpy).toHaveBeenCalled();
-    expect(onMessageSpy).toHaveBeenCalled();
+    expect(messagingServiceMock.getDeviceToken).toHaveBeenCalled();
+    expect(messagingServiceMock.listenForMessages).toHaveBeenCalled();
   });
 
   it('should call logout method', () => {
     component.logout();
-
     expect(authServiceMock.logout).toHaveBeenCalled();
   });
 
-  it('should handle token retrieval error', (done) => {
-    const consoleLogSpy = spyOn(console, 'log');
-    spyOn(messagingMock, 'getToken').and.returnValue(Promise.reject('Token error'));
+  it('should log device token when retrieved successfully', () => {
+    spyOn(console, 'log');
+    component.ngOnInit();
+    expect(console.log).toHaveBeenCalledWith('mockToken');
+  });
 
+  it('should handle token retrieval error', () => {
+    spyOn(console, 'log');
+    messagingServiceMock.getDeviceToken.and.returnValue(throwError(() => new Error('Error')));
     component['_getDeviceToken']();
-
-    setTimeout(() => {
-      expect(consoleLogSpy).toHaveBeenCalledWith('Token error', 'Token error');
-      done();
-    }, 0);
+    expect(console.log).toHaveBeenCalledWith('Token error', jasmine.any(Error));
   });
 
   it('should handle message reception', () => {
-    const consoleLogSpy = spyOn(console, 'log');
-    const onMessageSpy = spyOn(messagingMock, 'onMessage').and.callFake((_, { next }) => {
-      next({ message: 'Test message' });
-    });
-
     component['_onMessage']();
-
-    expect(consoleLogSpy).toHaveBeenCalledWith('Message', { message: 'Test message' });
-    expect(consoleLogSpy).toHaveBeenCalledWith('Done listening to messages');
-  });
-
-  it('should handle message error', () => {
-    const consoleLogSpy = spyOn(console, 'log');
-    const onMessageSpy = spyOn(messagingMock, 'onMessage').and.callFake((_, { error }) => {
-      error('Message error');
-    });
-
-    component['_onMessage']();
-
-    expect(consoleLogSpy).toHaveBeenCalledWith('Message error', 'Message error');
+    expect(messagingServiceMock.listenForMessages).toHaveBeenCalled();
   });
 });

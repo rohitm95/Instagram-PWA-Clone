@@ -1,7 +1,7 @@
 <div style="max-width: 320px;">
   <h2>Create Post!</h2>
   <form [formGroup]="postForm">
-    <div id="capture-image">
+    <div id="capture-image" #captureImageEl>
       <video #video id="player" autoplay width="320px"></video>
       <canvas #canvas id="canvas"></canvas>
       <button id="capture-button" mat-raised-button color="accent" (click)="captureImage()">
@@ -11,13 +11,13 @@
         <button mat-raised-button id="flip-camera" color="primary" (click)="flipCamera()">Flip camera</button>
       } -->
       @if (imageData) {
-        <button mat-raised-button id="recapture-button" color="primary" (click)="reCapture()">Capture Again</button>
+      <button mat-raised-button id="recapture-button" color="primary" (click)="reCapture()">Capture Again</button>
       }
     </div>
-    <div id="pick-image">
+    <div id="pick-image" #pickImageEl>
       <h4>Pick an image instead</h4>
       @if(imageURL) {
-          <img [src]="imageURL" class="create-post-image" />
+      <img [src]="imageURL" class="create-post-image" alt="" />
       }
       <button mat-raised-button color="primary" (click)="fileInput.click()">Choose File</button>
       <input hidden (change)="onFileSelected($event)" #fileInput type="file" accept="image/*">
@@ -40,12 +40,7 @@
     <button mat-button color="accent" cdkFocusInitial (click)="onNoClick()">
       Cancel
     </button>
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="createPost()"
-      [disabled]="postForm.invalid"
-    >
+    <button mat-raised-button color="primary" (click)="createPost()" [disabled]="postForm.invalid">
       Create
     </button>
   </form>

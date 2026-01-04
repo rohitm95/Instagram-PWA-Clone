@@ -1,29 +1,11 @@
 import { inject, Injectable } from '@angular/core';
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  Firestore,
-  getDoc,
-  getDocs,
-  orderBy,
-  query,
-  where,
-} from '@angular/fire/firestore';
-import {
-  ref,
-  uploadBytes,
-  Storage,
-  getDownloadURL,
-} from '@angular/fire/storage';
 import { asyncScheduler, scheduled } from 'rxjs';
 import { Post } from '../post.model';
+import { FirebaseDataService } from './firebase-data.service';
 
 @Injectable({ providedIn: 'root' })
 export class DataService {
-  firestore = inject(Firestore);
-  storage = inject(Storage);
+  private readonly firebaseDataService = inject(FirebaseDataService);
 
   addPostToDatabase(post: Post, userId) {
     let newPost = {
@@ -32,37 +14,37 @@ export class DataService {
       userId: userId
     };
     return scheduled(
-      addDoc(collection(this.firestore, 'availablePosts'), newPost),
+      this.firebaseDataService.addDocument(
+        this.firebaseDataService.getCollection('availablePosts'),
+        newPost
+      ),
       asyncScheduler
     );
   }
 
-  // fetchAvailablePosts() {
-  //   return scheduled(
-  //     getDocs(collection(this.firestore, 'availablePosts')),
-  //     asyncScheduler
-  //   );
-  // }
-
   fetchUserPosts(userId: string) {
-    const userTasksQuery = query(
-      collection(this.firestore, 'availablePosts'),
-      where('userId', '==', userId),
-      orderBy('date', 'desc')
+    const userTasksQuery = this.firebaseDataService.buildQuery(
+      this.firebaseDataService.getCollection('availablePosts'),
+      this.firebaseDataService.whereConstraint('userId', '==', userId),
+      this.firebaseDataService.orderByConstraint('date', 'desc')
     );
-    return scheduled(getDocs(userTasksQuery), asyncScheduler);
+    return scheduled(this.firebaseDataService.getDocuments(userTasksQuery), asyncScheduler);
   }
 
   deletePost(id) {
     return scheduled(
-      deleteDoc(doc(this.firestore, 'availablePosts', id)),
+      this.firebaseDataService.deleteDocument(
+        this.firebaseDataService.getDocumentRef('availablePosts', id)
+      ),
       asyncScheduler
     );
   }
 
   getPostDetails(id) {
     return scheduled(
-      getDoc(doc(this.firestore, 'availablePosts', id)),
+      this.firebaseDataService.getDocument(
+        this.firebaseDataService.getDocumentRef('availablePosts', id)
+      ),
       asyncScheduler
     );
   }
@@ -77,9 +59,9 @@ export class DataService {
     const storageURL =
       'https://firebasestorage.googleapis.com/v0/b/pwagram-f89ff.appspot.com/o/images';
     const filePath = `${storageURL}/${Date.now()}`;
-    const storageRef = ref(this.storage, filePath);
-    await uploadBytes(storageRef, file);
-    const fileURL = await getDownloadURL(storageRef);
+    const storageRef = this.firebaseDataService.getStorageRef(filePath);
+    await this.firebaseDataService.uploadFileBytes(storageRef, file);
+    const fileURL = await this.firebaseDataService.getFileDownloadURL(storageRef);
     return fileURL;
   }
 
@@ -87,9 +69,16 @@ export class DataService {
     const byteCharacters = atob(base64.split(',')[1]);
     const byteNumbers = new Array(byteCharacters.length);
     for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
+      byteNumbers[i] = byteCharacters.codePointAt(i);
     }
     const byteArray = new Uint8Array(byteNumbers);
     return new Blob([byteArray], { type: 'image/webp' });
   }
+
+  // fetchAvailablePosts() {
+  //   return scheduled(
+  //     getDocs(collection(this.firestore, 'availablePosts')),
+  //     asyncScheduler
+  //   );
+  // }
 }
