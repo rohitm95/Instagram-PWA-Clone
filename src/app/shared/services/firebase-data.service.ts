@@ -11,7 +11,8 @@ import {
   where,
   orderBy,
   CollectionReference,
-  QueryConstraint
+  QueryConstraint,
+  updateDoc
 } from '@angular/fire/firestore';
 import {
   Storage,
@@ -73,5 +74,9 @@ export class FirebaseDataService {
 
   getFileDownloadURL(storageRef: any) {
     return getDownloadURL(storageRef);
+  }
+
+  updateDocument(docRef: any, data: any) {
+    return updateDoc(docRef, data);
   }
 }

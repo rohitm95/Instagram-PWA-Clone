@@ -1,4 +1,4 @@
-import { DatePipe, NgOptimizedImage } from '@angular/common';
+import { AsyncPipe, DatePipe, JsonPipe, NgOptimizedImage } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -16,6 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { Router, RouterModule } from '@angular/router';
 import { Auth, authState } from '@angular/fire/auth';
 import { MatMenuModule } from '@angular/material/menu';
+import { GeoapifyService } from '../../shared/services/geoapify.service';
 
 @Component({
     selector: 'app-posts-list',
@@ -27,6 +28,7 @@ import { MatMenuModule } from '@angular/material/menu';
         RouterModule,
         NgOptimizedImage,
         MatMenuModule,
+        AsyncPipe,
     ],
     templateUrl: './posts-list.component.html',
     styleUrl: './posts-list.component.scss'
@@ -42,6 +44,7 @@ export class PostsListComponent implements AfterViewInit {
   auth = inject(Auth);
   authState$ = authState(this.auth);
   userDetails;
+  geoapifyService = inject(GeoapifyService);
 
   ngAfterViewInit(): void {
     this.getAllPosts();
@@ -54,16 +57,18 @@ export class PostsListComponent implements AfterViewInit {
         this.dataService.fetchUserPosts(user.uid).subscribe({
           next: (querySnapshot) => {
             let docs = querySnapshot.docs;
-            const availablePosts = docs.map((doc) => {
-              return {
-                id: doc.id,
-                title: doc.data()['title'],
-                location: doc.data()['location'],
-                date: doc.data()['date'],
-                image: doc.data()['image'],
-              };
-            });
-            this.data = availablePosts;
+              const availablePosts: Post[] = docs.map((doc) => {
+                const data = doc.data() as any;
+                return {
+                  id: doc.id,
+                  title: data.title,
+                  location: data.location,
+                  date: data.date,
+                  image: data.image,
+                  address$: this.geoapifyService.getAddress(data.location.lat, data.location.lng)
+                };
+              });
+              this.data = availablePosts;
           },
           error: (error) => {
             this.snackbarService.showSnackbar(
@@ -86,4 +91,22 @@ export class PostsListComponent implements AfterViewInit {
   addNewPost() {
     this.router.navigate(['create-post']);
   }
+
+  deletePost(post: Post) {
+    this.dataService.deletePost(post.id).subscribe({
+      next: () => {
+        this.snackbarService.showSnackbar('Post deleted successfully', null, 3000);
+        this.getAllPosts();
+      },
+      error: (error) => {
+        this.snackbarService.showSnackbar('Error deleting post', null, 3000);
+      },
+    });
+  }
+
+  editPost(post: Post) {
+    this.router.navigate(['create-post', post.id]);
+  }
+
+
 }

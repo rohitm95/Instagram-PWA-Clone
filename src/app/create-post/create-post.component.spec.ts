@@ -4,10 +4,9 @@ import { CreatePostComponent } from './create-post.component';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { getStorage, provideStorage } from '@angular/fire/storage';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { of, throwError } from 'rxjs';
-import { Router } from '@angular/router';
+import { of, throwError, Subscription } from 'rxjs';
+import { Router, ActivatedRoute } from '@angular/router';
 import { DataService } from '../shared/services/data.service';
 import { SnackbarService } from '../shared/services/snackbar.service';
 import { SpinnerService } from '../shared/services/spinner.service';
@@ -20,6 +19,7 @@ describe('CreatePostComponent', () => {
   let snackbarServiceMock: any;
   let routerMock: any;
   let spinnerServiceMock: any;
+  let activatedRouteMock: any;
 
   beforeEach(async () => {
     dataServiceMock = {
@@ -35,12 +35,20 @@ describe('CreatePostComponent', () => {
       navigate: jasmine.createSpy(),
     };
 
+    activatedRouteMock = {
+      snapshot: {
+        params: {
+          id: 'testId',
+        },
+      },
+    };
+
     spinnerServiceMock = {
       showSpinner: jasmine.createSpy(),
     };
 
     await TestBed.configureTestingModule({
-      imports: [CreatePostComponent, BrowserAnimationsModule, ReactiveFormsModule],
+      imports: [CreatePostComponent, ReactiveFormsModule],
       providers: [
         provideFirebaseApp(() =>
           initializeApp({
@@ -61,6 +69,7 @@ describe('CreatePostComponent', () => {
         { provide: SnackbarService, useValue: snackbarServiceMock },
         { provide: Router, useValue: routerMock },
         { provide: SpinnerService, useValue: spinnerServiceMock },
+        { provide: ActivatedRoute, useValue: activatedRouteMock },
       ],
     }).compileComponents();
 
@@ -91,8 +100,9 @@ describe('CreatePostComponent', () => {
   });
 
   it('should create the form on ngOnInit', () => {
-    spyOn(component.authState$, 'subscribe').and.callFake((callback) => {
+    spyOn(component.authState$, 'subscribe').and.callFake((callback: any) => {
       callback({ uid: 'testUserId' });
+      return new Subscription();
     });
 
     component.ngOnInit();

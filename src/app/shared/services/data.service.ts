@@ -49,6 +49,16 @@ export class DataService {
     );
   }
 
+  updatePost(post: Post, id: string) {
+    return scheduled(
+      this.firebaseDataService.updateDocument(
+        this.firebaseDataService.getDocumentRef('availablePosts', id),
+        post
+      ),
+      asyncScheduler
+    );
+  }
+
   async uploadFile(event) {
     let file;
     if (typeof event == 'string') {

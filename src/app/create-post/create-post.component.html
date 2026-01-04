@@ -1,6 +1,11 @@
 <div style="max-width: 320px;">
-  <h2>Create Post!</h2>
+  @if(postId) {
+    <h2>Update Post!</h2>
+  } @else {
+    <h2>Create Post!</h2>
+  }
   <form [formGroup]="postForm">
+    @if(!postId) {
     <div id="capture-image" #captureImageEl>
       <video #video id="player" autoplay width="320px"></video>
       <canvas #canvas id="canvas"></canvas>
@@ -14,6 +19,7 @@
       <button mat-raised-button id="recapture-button" color="primary" (click)="reCapture()">Capture Again</button>
       }
     </div>
+    }
     <div id="pick-image" #pickImageEl>
       <h4>Pick an image instead</h4>
       @if(imageURL) {
@@ -40,8 +46,15 @@
     <button mat-button color="accent" cdkFocusInitial (click)="onNoClick()">
       Cancel
     </button>
-    <button mat-raised-button color="primary" (click)="createPost()" [disabled]="postForm.invalid">
+    
+    @if(postId) {
+      <button mat-raised-button color="primary" (click)="updatePost()" [disabled]="postForm.invalid">
+        Update
+      </button>
+    } @else {
+      <button mat-raised-button color="primary" (click)="createPost()" [disabled]="postForm.invalid">
       Create
     </button>
+    }
   </form>
 </div>

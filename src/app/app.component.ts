@@ -1,8 +1,8 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterOutlet } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
-import { scheduled, asyncScheduler, tap, Subscription } from 'rxjs';
+import { scheduled, asyncScheduler, tap } from 'rxjs';
 import { SpinnerService } from './shared/services/spinner.service';
 import { AsyncPipe } from '@angular/common';
 
@@ -12,7 +12,7 @@ import { AsyncPipe } from '@angular/common';
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'PWA-gram';
 
   swUpdate = inject(SwUpdate);
@@ -25,7 +25,7 @@ export class AppComponent {
       scheduled(this.swUpdate.checkForUpdate(), asyncScheduler).pipe(
         tap(() => {
           // if (confirm("New version available. Load new version?")) {
-          window.location.reload();
+          globalThis.location.reload();
           // }
         })
       );

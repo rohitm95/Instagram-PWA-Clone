@@ -18,22 +18,22 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DataService } from '../shared/services/data.service';
 import { SnackbarService } from '../shared/services/snackbar.service';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { SpinnerService } from '../shared/services/spinner.service';
 import { Auth, authState } from '@angular/fire/auth';
 
 @Component({
-    selector: 'app-create-post',
-    templateUrl: 'create-post.component.html',
-    styleUrl: 'create-post.component.scss',
-    imports: [
-        MatFormFieldModule,
-        MatInputModule,
-        ReactiveFormsModule,
-        MatButtonModule,
-        MatProgressSpinnerModule,
-        RouterModule,
-    ]
+  selector: 'app-create-post',
+  templateUrl: 'create-post.component.html',
+  styleUrl: 'create-post.component.scss',
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    RouterModule,
+  ]
 })
 export class CreatePostComponent implements OnInit, AfterViewInit {
   @ViewChild('video') video: ElementRef;
@@ -49,6 +49,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
   dataService = inject(DataService);
   snackbarService = inject(SnackbarService);
   router = inject(Router);
+  route = inject(ActivatedRoute);
   imageData;
   selectedFile: any = null;
   imageURL;
@@ -57,15 +58,19 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
   authState$ = authState(this.auth);
   userId;
   front = false;
+  postId;
 
   ngOnInit(): void {
+    this.postId = this.route.snapshot.params['id'];
     if (navigator.onLine) {
       this.postForm = this.fb.group({
         title: ['', [Validators.required]],
         location: [''],
         image: [''],
       });
-
+      if (this.postId) {
+        this.initForm();
+      }
       this.getLocation();
       this.authState$.subscribe((user) => {
         this.userId = user.uid;
@@ -76,9 +81,31 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (navigator.onLine) {
+    if (navigator.onLine && !this.postId) {
       this.pickImageEl.nativeElement.style.display = 'none';
       this.initCamera();
+    }
+  }
+
+  initForm() {
+    if (this.postId) {
+      this.dataService.getPostDetails(this.postId).subscribe({
+        next: (post) => {
+          console.log(post.data());
+          // patch the form values
+          this.postForm.patchValue({
+            title: post.data()['title'],
+            location: post.data()['location'],
+            image: post.data()['image'],
+          });
+          this.imageURL = post.data()['image'];
+        },
+        error: (error) => {
+          this.snackbarService.showSnackbar('Error fetching post', null, 3000);
+        },
+      });
+    } else {
+      return;
     }
   }
 
@@ -185,6 +212,20 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
             this.snackbarService.showSnackbar(err, null, 3000);
           },
         });
+    });
+  }
+
+  updatePost() {
+    this.spinnerService.showSpinner(true);
+    this.dataService.updatePost(this.postForm.value, this.postId).subscribe({
+      next: (response) => {
+        this.router.navigate(['/posts']);
+        this.snackbarService.showSnackbar('Post Updated!', null, 3000);
+        this.spinnerService.showSpinner(false);
+      },
+      error: (err) => {
+        this.snackbarService.showSnackbar(err, null, 3000);
+      },
     });
   }
 }

@@ -40,6 +40,13 @@ export const routes: Routes = [
             (c) => c.CreatePostComponent
           ),
       },
+      {
+        path: 'create-post/:id',
+        loadComponent: () =>
+          import('./create-post/create-post.component').then(
+            (c) => c.CreatePostComponent
+          ),
+      },
     ],
     canActivate: [authGuard],
   },
