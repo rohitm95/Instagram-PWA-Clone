@@ -69,7 +69,7 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
         image: [''],
       });
       if (this.postId) {
-        this.initForm();
+        this.patchForm();
       }
       this.getLocation();
       this.authState$.subscribe((user) => {
@@ -82,16 +82,17 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     if (navigator.onLine && !this.postId) {
-      this.pickImageEl.nativeElement.style.display = 'none';
+      if (this.pickImageEl) {
+        this.pickImageEl.nativeElement.style.display = 'none';
+      }
       this.initCamera();
     }
   }
 
-  initForm() {
+  patchForm() {
     if (this.postId) {
       this.dataService.getPostDetails(this.postId).subscribe({
         next: (post) => {
-          console.log(post.data());
           // patch the form values
           this.postForm.patchValue({
             title: post.data()['title'],
@@ -124,6 +125,9 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
   }
 
   async initCamera() {
+    if (!this.canvas || !this.video) {
+      return;
+    }
     this.canvas.nativeElement.style.display = 'none';
     this.video.nativeElement.style.display = 'block';
 
@@ -131,11 +135,17 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' },
       });
-      this.pickImageEl.nativeElement.style.display = 'none';
+      if (this.pickImageEl) {
+        this.pickImageEl.nativeElement.style.display = 'none';
+      }
       this.video.nativeElement.srcObject = stream;
     } catch (error) {
-      this.pickImageEl.nativeElement.style.display = 'block';
-      this.captureImageEl.nativeElement.style.display = 'none';
+      if (this.pickImageEl) {
+        this.pickImageEl.nativeElement.style.display = 'block';
+      }
+      if (this.captureImageEl) {
+        this.captureImageEl.nativeElement.style.display = 'none';
+      }
       console.error('Error accessing camera:', error);
     }
   }
@@ -179,15 +189,21 @@ export class CreatePostComponent implements OnInit, AfterViewInit {
   }
 
   captureImage() {
+    if (!this.canvas || !this.video) {
+      return;
+    }
     this.context = this.canvas.nativeElement.getContext('2d');
     this.canvas.nativeElement.width = this.video.nativeElement.videoWidth;
     this.canvas.nativeElement.height = this.video.nativeElement.videoHeight;
     this.context.drawImage(this.video.nativeElement, 0, 0);
     this.video.nativeElement.style.display = 'none';
     this.canvas.nativeElement.style.display = 'block';
-    this.video.nativeElement.srcObject.getVideoTracks().forEach((track) => {
-      track.stop();
-    });
+    const stream = this.video.nativeElement.srcObject as MediaStream;
+    if (stream && typeof stream.getVideoTracks === 'function') {
+      stream.getVideoTracks().forEach((track) => {
+        track.stop();
+      });
+    }
 
     this.imageData = this.canvas.nativeElement.toDataURL('image/webp');
   }

@@ -8,6 +8,7 @@ import { getAuth, provideAuth } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { DataService } from '../../shared/services/data.service';
 import { SnackbarService } from '../../shared/services/snackbar.service';
+import { GeoapifyService } from '../../shared/services/geoapify.service';
 import { ElementRef, QueryList } from '@angular/core';
 import { of, throwError } from 'rxjs';
 
@@ -17,10 +18,12 @@ describe('PostsListComponent', () => {
   let dataServiceMock: any;
   let snackbarServiceMock: any;
   let routerMock: any;
+  let geoapifyServiceMock: any;
 
   beforeEach(async () => {
     dataServiceMock = {
       fetchUserPosts: jasmine.createSpy().and.returnValue(of({ docs: [] })),
+      deletePost: jasmine.createSpy().and.returnValue(of({})),
     };
 
     snackbarServiceMock = {
@@ -29,6 +32,10 @@ describe('PostsListComponent', () => {
 
     routerMock = {
       navigate: jasmine.createSpy(),
+    };
+
+    geoapifyServiceMock = {
+      getAddress: jasmine.createSpy().and.returnValue(of('Test Address')),
     };
     await TestBed.configureTestingModule({
       imports: [PostsListComponent],
@@ -50,6 +57,7 @@ describe('PostsListComponent', () => {
         { provide: DataService, useValue: dataServiceMock },
         { provide: SnackbarService, useValue: snackbarServiceMock },
         { provide: Router, useValue: routerMock },
+        { provide: GeoapifyService, useValue: geoapifyServiceMock },
       ],
     }).compileComponents();
 
@@ -142,5 +150,34 @@ describe('PostsListComponent', () => {
     component.addNewPost();
 
     expect(routerMock.navigate).toHaveBeenCalledWith(['create-post']);
+  });
+
+  it('should delete post and fetch all posts on success', () => {
+    const mockPost = { id: 'testId' } as any;
+    spyOn(component, 'getAllPosts');
+    dataServiceMock.deletePost.and.returnValue(of({}));
+
+    component.deletePost(mockPost);
+
+    expect(dataServiceMock.deletePost).toHaveBeenCalledWith('testId');
+    expect(snackbarServiceMock.showSnackbar).toHaveBeenCalledWith('Post deleted successfully', null, 3000);
+    expect(component.getAllPosts).toHaveBeenCalled();
+  });
+
+  it('should show snackbar on error deleting post', () => {
+    const mockPost = { id: 'testId' } as any;
+    dataServiceMock.deletePost.and.returnValue(throwError(() => new Error('Error')));
+
+    component.deletePost(mockPost);
+
+    expect(snackbarServiceMock.showSnackbar).toHaveBeenCalledWith('Error deleting post', null, 3000);
+  });
+
+  it('should navigate to edit post on editPost', () => {
+    const mockPost = { id: 'testId' } as any;
+
+    component.editPost(mockPost);
+
+    expect(routerMock.navigate).toHaveBeenCalledWith(['create-post', 'testId']);
   });
 });

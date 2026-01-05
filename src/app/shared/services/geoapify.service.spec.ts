@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpTestingController } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
 import { GeoapifyService } from './geoapify.service';
 
 describe('GeoapifyService', () => {
@@ -9,7 +10,11 @@ describe('GeoapifyService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [],
-      providers: [GeoapifyService]
+      providers: [
+        GeoapifyService,
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ]
     });
     service = TestBed.inject(GeoapifyService);
     httpMock = TestBed.inject(HttpTestingController);

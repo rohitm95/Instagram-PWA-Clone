@@ -107,6 +107,4 @@ export class PostsListComponent implements AfterViewInit {
   editPost(post: Post) {
     this.router.navigate(['create-post', post.id]);
   }
-
-
 }

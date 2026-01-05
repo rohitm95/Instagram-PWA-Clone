@@ -25,6 +25,14 @@ describe('CreatePostComponent', () => {
     dataServiceMock = {
       uploadFile: jasmine.createSpy().and.returnValue(Promise.resolve('mockImageURL')),
       addPostToDatabase: jasmine.createSpy().and.returnValue(of({})),
+      getPostDetails: jasmine.createSpy().and.returnValue(of({
+        data: () => ({
+          title: 'Mock Title',
+          location: 'Mock Location',
+          image: 'mock-image.jpg'
+        })
+      })),
+      updatePost: jasmine.createSpy().and.returnValue(of({})),
     };
 
     snackbarServiceMock = {
@@ -38,7 +46,7 @@ describe('CreatePostComponent', () => {
     activatedRouteMock = {
       snapshot: {
         params: {
-          id: 'testId',
+          id: undefined,
         },
       },
     };
@@ -79,17 +87,20 @@ describe('CreatePostComponent', () => {
     component.canvas = { nativeElement: { style: { display: '' } } } as any;
     component.pickImageEl = { nativeElement: { style: { display: '' } } } as any;
     component.captureImageEl = { nativeElement: { style: { display: '' } } } as any;
-    component.captureImageEl = { nativeElement: { style: { display: '' } } } as any;
     component.imageData = null;
 
     if (!navigator.mediaDevices) {
       (navigator as any).mediaDevices = {};
     }
-    // Ensure getUserMedia exists to be spied on, if it doesn't already
     if (!navigator.mediaDevices.getUserMedia) {
       (navigator.mediaDevices as any).getUserMedia = () => Promise.resolve({});
     }
-    
+
+    if (!navigator.geolocation) {
+      (navigator as any).geolocation = { getCurrentPosition: () => {} };
+    }
+    spyOn(navigator.geolocation, 'getCurrentPosition');
+
     spyOn(navigator.mediaDevices, 'getUserMedia').and.returnValue(Promise.resolve({} as MediaStream));
 
     fixture.detectChanges();
@@ -238,5 +249,55 @@ describe('CreatePostComponent', () => {
     expect(mockTrack.stop).toHaveBeenCalled();
     expect(mockCanvas.toDataURL).toHaveBeenCalledWith('image/webp');
     expect(component.imageData).toBe('mockImageData');
+  });
+
+  it('should fetch post details on ngOnInit if postId is present', () => {
+    activatedRouteMock.snapshot.params['id'] = 'testId';
+    
+    component.ngOnInit();
+    
+    expect(dataServiceMock.getPostDetails).toHaveBeenCalledWith('testId');
+  });
+
+  it('should patch form with post details in patchForm', () => {
+    const mockPost = {
+      data: () => ({
+        title: 'Test Title',
+        location: 'Test Location',
+        image: 'test-image.jpg'
+      })
+    };
+    dataServiceMock.getPostDetails.and.returnValue(of(mockPost));
+    component.postId = 'testId';
+
+    component.patchForm();
+
+    expect(component.postForm.value.title).toBe('Test Title');
+    expect(component.imageURL).toBe('test-image.jpg');
+  });
+
+  it('should show snackbar on error fetching post details in patchForm', () => {
+    dataServiceMock.getPostDetails.and.returnValue(throwError(() => new Error('Error')));
+    component.postId = 'testId';
+
+    component.patchForm();
+
+    expect(snackbarServiceMock.showSnackbar).toHaveBeenCalledWith('Error fetching post', null, 3000);
+  });
+
+  it('should get location', () => {
+    const mockPosition = {
+      coords: {
+        latitude: 10,
+        longitude: 20
+      }
+    };
+    (navigator.geolocation.getCurrentPosition as jasmine.Spy).and.callFake((success: any) => {
+      success(mockPosition);
+    });
+
+    component.getLocation();
+
+    expect(component.postForm.value.location).toEqual({ lat: 10, lng: 20 });
   });
 });
